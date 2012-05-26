@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <script src="../utils.js"></script>
+        <script src="../event.js"></script>
+        <script src="../promise.js"></script>
+        <script src="../variable.js"></script>
+        <script src="../collection.js"></script>
+        <script src="../array.js"></script>
+        <script src="../object.js"></script>
+        <script src="../operations.js"></script>
+        <script src="../flow.js"></script>
+        <script src="../loop.js"></script>
+        <script src="../providers.js"></script>
+        <script>
+            /**
+                var n = 0,
+                    total = 0;
+                while (n < 5) {
+                    total = total + $inputData;
+                    n = n + 1;
+                }
+            /*/
+
+            window.onload = function () {
+                var n = new Variable(nowData(0)),
+                    total = new Variable(nowData(0));
+                loopWhile([n], function (n) { 
+                    return lt(n.current, nowData(5)); 
+                }, [n, total], function (n, total) {
+                    total.assign(add(total.current, inputData(n.current, function (v) { return v - 0; } )));
+                    n.assign(add(n.current, laterData(1, 2000)));
+                });
+                
+                total.current.kept(function (data) {
+                    var input = document.getElementById('result');
+                    input.value = data;
+                });
+            };
+        </script>
+    </head>
+    <body>
+        <input type="text" id="result" />
+    </body>
+</html>

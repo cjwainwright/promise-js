@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <script src="../utils.js"></script>
+        <script src="../event.js"></script>
+        <script src="../promise.js"></script>
+        <script src="../variable.js"></script>
+        <script src="../collection.js"></script>
+        <script src="../array.js"></script>
+        <script src="../object.js"></script>
+        <script src="../operations.js"></script>
+        <script src="../flow.js"></script>
+        <script src="../loop.js"></script>
+        <script src="../providers.js"></script>
+        <script>
+            /**
+                var cont = true;
+                while (cont) {
+                    cont = $inputData != '';
+                }
+            /*/
+        
+            window.onload = function () {
+                var cont = new Variable(nowData(true));
+                loopWhile(
+                    [cont], 
+                    function (cont) { return cont.current; }, 
+                    [cont], 
+                    function (cont) {
+                        cont.assign(neq(nowData(''), inputData(laterData('', 3000))));
+                    }
+                );
+            };
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
