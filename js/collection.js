@@ -39,7 +39,7 @@ Collection.prototype = {
         })
         return value;
     },
-    delete: function (index, value) {
+    'delete': function (index, value) {
         var that = this;
         this._enqueue(function () {
             index.kept(function (i){
