@@ -1,3 +1,5 @@
+promise.exportTo(window);
+
 var samples = {
     "1' < 2'": function () {
         var a = laterData(1, 500);

@@ -1,3 +1,5 @@
+/////////////////////////////////////////////////////
+
 function loopWhile(conditionVars, conditionFunc, vars, func) {
     var i, allVarsIndex = 0;
     var varsBranch = [], 
@@ -69,3 +71,9 @@ function loopWhile(conditionVars, conditionFunc, vars, func) {
     }
     loop();
 }
+
+/////////////////////////////////////////////////////
+
+exports.loopWhile = loopWhile;
+
+/////////////////////////////////////////////////////

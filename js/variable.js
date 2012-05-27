@@ -1,5 +1,6 @@
 
 /////////////////////////////////////////////////////
+// TODO - can we make the variable/promise proxy all method calls to the underlying value data
 
 function Variable(current) {
     this.current = current;
@@ -13,4 +14,6 @@ Variable.prototype = {
 
 /////////////////////////////////////////////////////
 
-// TODO - can we make the variable/promise proxy all method calls to the underlying value data
+exports.Variable = Variable;
+
+/////////////////////////////////////////////////////

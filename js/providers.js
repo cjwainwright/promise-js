@@ -1,6 +1,14 @@
+/////////////////////////////////////////////////////
+
 function nowData(data) {
     var promise = new Promise();
     promise.setData(data);
+    return promise;
+}
+
+function nowBreak() {
+    var promise = new Promise();
+    promise.setBroken();
     return promise;
 }
 
@@ -48,3 +56,13 @@ function inputData(key, parser) {
     });
     return ret;
 };
+
+/////////////////////////////////////////////////////
+
+exports.nowData = nowData;
+exports.nowBreak = nowBreak;
+exports.laterData = laterData;
+exports.laterBreak = laterBreak;
+exports.inputData = inputData;
+
+/////////////////////////////////////////////////////

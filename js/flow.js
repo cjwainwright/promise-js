@@ -103,3 +103,13 @@ function switchLater(test, vars, cases, defaultCase) {
 }
 
 /////////////////////////////////////////////////////
+
+exports.ifelseNow = ifelseNow;
+exports.ifNow = ifNow;
+exports.switchNow = switchNow;
+
+exports.ifelseLater = ifelseLater;
+exports.ifLater = ifLater;
+exports.switchLater = switchLater;
+
+/////////////////////////////////////////////////////

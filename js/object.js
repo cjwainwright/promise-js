@@ -15,3 +15,9 @@ DynamicObject.prototype._currentsCopy = function () {
     }
     return currents;
 };
+
+/////////////////////////////////////////////////////
+
+exports.DynamicObject = DynamicObject;
+
+/////////////////////////////////////////////////////

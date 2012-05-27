@@ -1,3 +1,14 @@
+var promise = (function () {
+    var exports = {
+        exportTo: function (o) {
+            for (var key in exports) {
+                if (exports.hasOwnProperty(key)) {
+                    o[key] = exports[key];
+                }
+            }
+        }
+    };
+
 if(typeof(Object.create) !== 'function')
 {
     Object.create = function(o){
@@ -151,8 +162,14 @@ function fmap(f) {
 
 /////////////////////////////////////////////////////
 
+exports.Promise = Promise;
+exports.fmap = fmap;
 
 /////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////
+// TODO - can we make the variable/promise proxy all method calls to the underlying value data
 
 function Variable(current) {
     this.current = current;
@@ -166,7 +183,9 @@ Variable.prototype = {
 
 /////////////////////////////////////////////////////
 
-// TODO - can we make the variable/promise proxy all method calls to the underlying value data
+exports.Variable = Variable;
+
+/////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
 
@@ -264,6 +283,11 @@ function set(collection, index, value) {
 
 /////////////////////////////////////////////////////
 
+exports.get = get;
+exports.set = set;
+
+/////////////////////////////////////////////////////
+
 /////////////////////////////////////////////////////
 
 function DynamicArray() {
@@ -303,6 +327,11 @@ function length(array) {
 
 /////////////////////////////////////////////////////
 
+exports.DynamicArray = DynamicArray;
+exports.length = length;
+
+/////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////
 
@@ -320,6 +349,12 @@ DynamicObject.prototype._currentsCopy = function () {
     }
     return currents;
 };
+
+/////////////////////////////////////////////////////
+
+exports.DynamicObject = DynamicObject;
+
+/////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
 // Comparison
@@ -350,6 +385,15 @@ var gteq = fmap(function (u, v) {
 });
 
 /////////////////////////////////////////////////////
+
+exports.eq = eq;
+exports.neq = neq;
+exports.lt = lt;
+exports.lteq = lteq;
+exports.gt = gt;
+exports.gteq = gteq;
+
+/////////////////////////////////////////////////////
 // Arithmetic
 /////////////////////////////////////////////////////
 
@@ -370,6 +414,11 @@ var mult = fmap(function () {
 });
 
 /////////////////////////////////////////////////////
+
+exports.add = add;
+exports.mult = mult;
+
+/////////////////////////////////////////////////////
 // Unary
 /////////////////////////////////////////////////////
 
@@ -380,6 +429,13 @@ var inc = fmap(function (a) {
 var dec = fmap(function (a) {
     return --a;
 });
+
+/////////////////////////////////////////////////////
+
+exports.inc = inc;
+exports.dec = dec;
+
+/////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
 
@@ -487,6 +543,18 @@ function switchLater(test, vars, cases, defaultCase) {
 
 /////////////////////////////////////////////////////
 
+exports.ifelseNow = ifelseNow;
+exports.ifNow = ifNow;
+exports.switchNow = switchNow;
+
+exports.ifelseLater = ifelseLater;
+exports.ifLater = ifLater;
+exports.switchLater = switchLater;
+
+/////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+
 function loopWhile(conditionVars, conditionFunc, vars, func) {
     var i, allVarsIndex = 0;
     var varsBranch = [], 
@@ -559,9 +627,23 @@ function loopWhile(conditionVars, conditionFunc, vars, func) {
     loop();
 }
 
+/////////////////////////////////////////////////////
+
+exports.loopWhile = loopWhile;
+
+/////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+
 function nowData(data) {
     var promise = new Promise();
     promise.setData(data);
+    return promise;
+}
+
+function nowBreak() {
+    var promise = new Promise();
+    promise.setBroken();
     return promise;
 }
 
@@ -610,3 +692,16 @@ function inputData(key, parser) {
     return ret;
 };
 
+/////////////////////////////////////////////////////
+
+exports.nowData = nowData;
+exports.nowBreak = nowBreak;
+exports.laterData = laterData;
+exports.laterBreak = laterBreak;
+exports.inputData = inputData;
+
+/////////////////////////////////////////////////////
+
+
+    return exports;
+})();
