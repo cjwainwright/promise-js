@@ -1,10 +1,10 @@
-var promise = (function () {
-    var exports = {
-        exportTo: function (o) {
-            for (var key in exports) {
-                if (exports.hasOwnProperty(key)) {
-                    o[key] = exports[key];
-                }
+//#include _copyright.js
+(function (exports) {
+
+    exports.exportTo = function (o) {
+        for (var key in exports) {
+            if (exports.hasOwnProperty(key)) {
+                o[key] = exports[key];
             }
         }
     };
@@ -21,5 +21,4 @@ var promise = (function () {
     //#include loop.js
     //#include providers.js
 
-    return exports;
-})();
+})(typeof exports === 'undefined' ? (promise = {}) : exports);
