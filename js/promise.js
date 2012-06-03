@@ -101,8 +101,12 @@ function fmap(f) {
             ret.setBroken();
         }
         
-        for (var i = 0; i < args.length; i++) {
-            args[i].kept(onKept).broken(onBroken);
+        if (args.length > 0) {
+            for (var i = 0; i < args.length; i++) {
+                args[i].kept(onKept).broken(onBroken);
+            }
+        } else {
+            onKept();
         }
         
         return ret;
