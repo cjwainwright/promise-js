@@ -1,10 +1,12 @@
 /////////////////////////////////////////////////////
+// Collection class
+/////////////////////////////////////////////////////
 
 function Collection() {
     this._queue = [];
 }
 
-Collection.prototype = {
+extend(Collection.prototype, {
     get: function (index) {
         // make a promise of the return value
         var ret = new Promise();
@@ -69,7 +71,7 @@ Collection.prototype = {
             }
         }
     }
-};
+});
 
 /////////////////////////////////////////////////////
 

@@ -32,6 +32,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         }
     };
 
+/////////////////////////////////////////////////////
+// Utility functions
+/////////////////////////////////////////////////////
+
+var slice = Array.prototype.slice;
+
+/////////////////////////////////////////////////////
+
 if(typeof(Object.create) !== 'function')
 {
     Object.create = function(o){
@@ -41,7 +49,9 @@ if(typeof(Object.create) !== 'function')
     };
 }
 
-function derive(Child, Parent){
+/////////////////////////////////////////////////////
+
+function derive(Child, Parent) {
     Child.prototype = Object.create(Parent.prototype);
     Child.prototype.constructor = Child;
     Child.Parent = Parent;
@@ -49,11 +59,29 @@ function derive(Child, Parent){
 
 /////////////////////////////////////////////////////
 
+function extend(target) {
+    var sources = slice.call(arguments, 1);
+    for (var i = 0, length = sources.length; i < length; i++) {
+        var source = sources[i];
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    }
+}
+
+/////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+// Event class
+/////////////////////////////////////////////////////
+
 function Event() {
     this._listeners = [];
 }
 
-Event.prototype = {
+extend(Event.prototype, {
     add: function (listener) {
         this._listeners.push(listener);
     },
@@ -66,14 +94,12 @@ Event.prototype = {
     clear: function () {
         this._listeners = [];
     }
-};
+});
 
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
-// TODO -
-// Clarify when we throw exceptions and when we set values as broken
-// when apply-ing functions what context should we be using
+// Promise class
 /////////////////////////////////////////////////////
 
 var waiting = "waiting",
@@ -89,7 +115,7 @@ function Promise() {
     this._onbroken = new Event();
 }
 
-Promise.prototype = {
+extend(Promise.prototype, {
     kept: function (callback) {
         if (this.state == waiting) {
             this._onkept.add(callback);
@@ -132,7 +158,7 @@ Promise.prototype = {
             promise.setBroken();
         });
     }
-};
+});
 
 /////////////////////////////////////////////////////
 
@@ -190,19 +216,19 @@ exports.fmap = fmap;
 
 /////////////////////////////////////////////////////
 
-
 /////////////////////////////////////////////////////
-// TODO - can we make the variable/promise proxy all method calls to the underlying value data
+// Variable class
+/////////////////////////////////////////////////////
 
 function Variable(current) {
     this.current = current;
 }
 
-Variable.prototype = {
+extend(Variable.prototype, {
     assign: function (promise) {
         return this.current = promise;
     }
-}; 
+}); 
 
 /////////////////////////////////////////////////////
 
@@ -211,12 +237,14 @@ exports.Variable = Variable;
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
+// Collection class
+/////////////////////////////////////////////////////
 
 function Collection() {
     this._queue = [];
 }
 
-Collection.prototype = {
+extend(Collection.prototype, {
     get: function (index) {
         // make a promise of the return value
         var ret = new Promise();
@@ -281,7 +309,7 @@ Collection.prototype = {
             }
         }
     }
-};
+});
 
 /////////////////////////////////////////////////////
 
@@ -312,6 +340,8 @@ exports.set = set;
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
+// DynamicArray class
+/////////////////////////////////////////////////////
 
 function DynamicArray() {
     DynamicArray.Parent.call(this);
@@ -320,21 +350,22 @@ function DynamicArray() {
 
 derive(DynamicArray, Collection);
 
-DynamicArray.prototype._currentsCopy = function () {
-    return this.currents.slice();
-};
-
-DynamicArray.prototype.length = function () {
-    // make a promise of the return value
-    var ret = new Promise();
-    var that = this;
-    this._enqueue(function () {
-        // needs to use copy of values at moment of 'call'
-        ret.setData(that.currents.length);
-        that._dequeue(); // can be dequeued immediately
-    });
-    return ret;
-};
+extend(DynamicArray.prototype, {
+    _currentsCopy: function () {
+        return this.currents.slice();
+    },
+    length: function () {
+        // make a promise of the return value
+        var ret = new Promise();
+        var that = this;
+        this._enqueue(function () {
+            // needs to use copy of values at moment of 'call'
+            ret.setData(that.currents.length);
+            that._dequeue(); // can be dequeued immediately
+        });
+        return ret;
+    }
+});
 
 /////////////////////////////////////////////////////
 
@@ -355,7 +386,8 @@ exports.length = length;
 
 /////////////////////////////////////////////////////
 
-
+/////////////////////////////////////////////////////
+// DynamicObject class
 /////////////////////////////////////////////////////
 
 function DynamicObject() {
@@ -365,13 +397,15 @@ function DynamicObject() {
 
 derive(DynamicObject, Collection);
 
-DynamicObject.prototype._currentsCopy = function () {
-    var currents = {};
-    for (var key in this.currents) {
-        currents[key] = this.currents[key];
+extend(DynamicObject.prototype, {
+    _currentsCopy: function () {
+        var currents = {};
+        for (var key in this.currents) {
+            currents[key] = this.currents[key];
+        }
+        return currents;
     }
-    return currents;
-};
+});
 
 /////////////////////////////////////////////////////
 
@@ -460,6 +494,8 @@ exports.dec = dec;
 
 /////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////
+// Flow functions
 /////////////////////////////////////////////////////
 
 function branchNow(condition, vars, map, funcs) {
@@ -577,6 +613,8 @@ exports.switchLater = switchLater;
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
+// Loop functions
+/////////////////////////////////////////////////////
 
 function loopWhile(conditionVars, conditionFunc, vars, func) {
     var i, allVarsIndex = 0;
@@ -657,6 +695,8 @@ exports.loopWhile = loopWhile;
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
+// Data provider functions
+/////////////////////////////////////////////////////
 
 function nowData(data) {
     var promise = new Promise();
@@ -727,3 +767,9 @@ exports.inputData = inputData;
 
 
 })(typeof exports === 'undefined' ? (promise = {}) : exports);
+
+/* TODOs 
+ * Clarify when we throw exceptions and when we set values as broken
+ * When apply-ing functions what context should we be using
+ * Can we make the variable/promise proxy all method calls to the underlying value data?
+ */

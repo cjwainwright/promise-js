@@ -1,16 +1,16 @@
-
 /////////////////////////////////////////////////////
-// TODO - can we make the variable/promise proxy all method calls to the underlying value data
+// Variable class
+/////////////////////////////////////////////////////
 
 function Variable(current) {
     this.current = current;
 }
 
-Variable.prototype = {
+extend(Variable.prototype, {
     assign: function (promise) {
         return this.current = promise;
     }
-}; 
+}); 
 
 /////////////////////////////////////////////////////
 

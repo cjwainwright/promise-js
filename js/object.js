@@ -1,4 +1,5 @@
-
+/////////////////////////////////////////////////////
+// DynamicObject class
 /////////////////////////////////////////////////////
 
 function DynamicObject() {
@@ -8,13 +9,15 @@ function DynamicObject() {
 
 derive(DynamicObject, Collection);
 
-DynamicObject.prototype._currentsCopy = function () {
-    var currents = {};
-    for (var key in this.currents) {
-        currents[key] = this.currents[key];
+extend(DynamicObject.prototype, {
+    _currentsCopy: function () {
+        var currents = {};
+        for (var key in this.currents) {
+            currents[key] = this.currents[key];
+        }
+        return currents;
     }
-    return currents;
-};
+});
 
 /////////////////////////////////////////////////////
 

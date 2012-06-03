@@ -1,7 +1,5 @@
 /////////////////////////////////////////////////////
-// TODO -
-// Clarify when we throw exceptions and when we set values as broken
-// when apply-ing functions what context should we be using
+// Promise class
 /////////////////////////////////////////////////////
 
 var waiting = "waiting",
@@ -17,7 +15,7 @@ function Promise() {
     this._onbroken = new Event();
 }
 
-Promise.prototype = {
+extend(Promise.prototype, {
     kept: function (callback) {
         if (this.state == waiting) {
             this._onkept.add(callback);
@@ -60,7 +58,7 @@ Promise.prototype = {
             promise.setBroken();
         });
     }
-};
+});
 
 /////////////////////////////////////////////////////
 

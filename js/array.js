@@ -1,4 +1,6 @@
 /////////////////////////////////////////////////////
+// DynamicArray class
+/////////////////////////////////////////////////////
 
 function DynamicArray() {
     DynamicArray.Parent.call(this);
@@ -7,21 +9,22 @@ function DynamicArray() {
 
 derive(DynamicArray, Collection);
 
-DynamicArray.prototype._currentsCopy = function () {
-    return this.currents.slice();
-};
-
-DynamicArray.prototype.length = function () {
-    // make a promise of the return value
-    var ret = new Promise();
-    var that = this;
-    this._enqueue(function () {
-        // needs to use copy of values at moment of 'call'
-        ret.setData(that.currents.length);
-        that._dequeue(); // can be dequeued immediately
-    });
-    return ret;
-};
+extend(DynamicArray.prototype, {
+    _currentsCopy: function () {
+        return this.currents.slice();
+    },
+    length: function () {
+        // make a promise of the return value
+        var ret = new Promise();
+        var that = this;
+        this._enqueue(function () {
+            // needs to use copy of values at moment of 'call'
+            ret.setData(that.currents.length);
+            that._dequeue(); // can be dequeued immediately
+        });
+        return ret;
+    }
+});
 
 /////////////////////////////////////////////////////
 

@@ -22,3 +22,9 @@
     //#include providers.js
 
 })(typeof exports === 'undefined' ? (promise = {}) : exports);
+
+/* TODOs 
+ * Clarify when we throw exceptions and when we set values as broken
+ * When apply-ing functions what context should we be using
+ * Can we make the variable/promise proxy all method calls to the underlying value data?
+ */

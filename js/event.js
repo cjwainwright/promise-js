@@ -1,10 +1,12 @@
 /////////////////////////////////////////////////////
+// Event class
+/////////////////////////////////////////////////////
 
 function Event() {
     this._listeners = [];
 }
 
-Event.prototype = {
+extend(Event.prototype, {
     add: function (listener) {
         this._listeners.push(listener);
     },
@@ -17,6 +19,6 @@ Event.prototype = {
     clear: function () {
         this._listeners = [];
     }
-};
+});
 
 /////////////////////////////////////////////////////
