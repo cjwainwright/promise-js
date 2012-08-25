@@ -8,8 +8,10 @@ The basics
 
 The intention is that a program could be written entirely as if it were synchronous. For example, consider the following simple program:
 
-    var a = 1';
-    var b = a + 2;
+```
+var a = 1';
+var b = a + 2;
+```
 
 Note the `1'`, this is not a typo, it is (for want of a better notation) my way of saying that the value `1` will be retrieved asynchronously. The value we assign to `a` on the first line is not actually known at the time the line executes, instead we just have the promise of a value which will be populated with a value of `1` at a later time. 
 
@@ -17,14 +19,18 @@ Now we execute the second line, but still don't know the value of `a`. We procee
 
 The transcompiled version of the above code should be:
 
-    var a = new Variable(laterData(1, 1000));
-    var b = new Variable(add(a.current, nowData(2));
+```js
+var a = new Variable(laterData(1, 1000));
+var b = new Variable(add(a.current, nowData(2));
+```
 
 Here, `laterData` is just a convenient test method which takes the role of `1'`. The variables are created with the `Variable` constructor, assigning promises to a variable is either done at construction time, or later with the `assign` method. Note the `current` property on the variable exposes the assigned promise.
 
 Note, these objects and methods (such as `Variable` and `add`) are exposed on the `promise` namespace in the library. If you'd rather not keep writing `promise.Variable` etc. you can make them global so you can use them as above by calling
 
-    promise.exportTo(window);
+```js
+promise.exportTo(window);
+```
 
 What it can do so far
 -----
