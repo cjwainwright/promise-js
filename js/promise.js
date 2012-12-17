@@ -28,7 +28,7 @@ extend(Promise.prototype, {
         if (this.state == waiting) {
             this._onbroken.add(callback);
         } else if (this.state == broken) {
-            callback(this.error);
+            callback();
         }
         return this;
     },
