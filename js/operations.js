@@ -64,6 +64,10 @@ exports.mult = mult;
 // Unary
 /////////////////////////////////////////////////////
 
+var not = fmap(function (a) {
+    return !a;
+});
+
 var inc = fmap(function (a) {
     return ++a;
 });
@@ -74,6 +78,7 @@ var dec = fmap(function (a) {
 
 /////////////////////////////////////////////////////
 
+exports.not = not;
 exports.inc = inc;
 exports.dec = dec;
 

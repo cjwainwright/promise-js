@@ -170,7 +170,7 @@ extend(Promise.prototype, {
     },
     thenData: function (action) {
         // action must return a value
-        // equivalent of 
+        // equivalent of:
         // return this.then(function (data) { return nowData(action(data)); });
         var ret = new Promise();
         this.kept(function (data) {
@@ -260,6 +260,11 @@ function Variable(current) {
 extend(Variable.prototype, {
     assign: function (promise) {
         return this.current = promise;
+    },
+    assignPostfix: function (promise) {
+        var original = this.current;
+        this.current = promise;
+        return original;
     }
 }); 
 
@@ -512,6 +517,10 @@ exports.mult = mult;
 // Unary
 /////////////////////////////////////////////////////
 
+var not = fmap(function (a) {
+    return !a;
+});
+
 var inc = fmap(function (a) {
     return ++a;
 });
@@ -522,6 +531,7 @@ var dec = fmap(function (a) {
 
 /////////////////////////////////////////////////////
 
+exports.not = not;
 exports.inc = inc;
 exports.dec = dec;
 
