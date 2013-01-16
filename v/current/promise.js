@@ -171,7 +171,7 @@ extend(Promise.prototype, {
     thenData: function (action) {
         // action must return a value
         // equivalent of:
-        // return this.then(function (data) { return nowData(action(data)); });
+        // return this.then(function (data) { return unit(action(data)); });
         var ret = new Promise();
         this.kept(function (data) {
             ret.setData(action(data));
@@ -183,6 +183,12 @@ extend(Promise.prototype, {
 });
 
 /////////////////////////////////////////////////////
+
+function unit(data) {
+    var promise = new Promise();
+    promise.setData(data);
+    return promise;
+}
 
 function all(args) {
     // returns a promise that is either kept (with the data of args) when all args have been kept, or broken when any of args is broken
@@ -245,6 +251,7 @@ function fmap(f) {
 /////////////////////////////////////////////////////
 
 exports.Promise = Promise;
+exports.unit = unit;
 exports.fmap = fmap;
 
 /////////////////////////////////////////////////////

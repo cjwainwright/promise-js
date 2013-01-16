@@ -49,7 +49,7 @@
             code.push(';');
         },
         Literal: function (ast, code) {
-            code.push('promise.nowData(', ast.raw, ')'); //TODO - rename nowData to unit
+            code.push('promise.unit(', ast.raw, ')');
         },
         Identifier: function (ast, code) {
             code.push(ast.name, '.current');
