@@ -123,19 +123,21 @@
         }
         
         var functionDecl = ast.body[0];
-        
-        var params = functionDecl.params;
-        
         if(functionDecl.body.type != 'BlockStatement') {
             throw "Function doesn't contain block statement";
         }
         
-        var code = [];
-        process(functionDecl.body, code);
-                        
+        var params = functionDecl.params;
         var args = params.map(function (param) { return param.name; } );
         
-        //for each promise arg need to create a promise.Variable
+        var code = [];
+        
+        //preamble - convert the promises passed in to the function into variables, we can overwrite the actual function args as they'll only be used in variable form
+        args.forEach(function (arg) {
+            code.push(arg, ' = new promise.Variable(', arg, ');\n');
+        });
+        process(functionDecl.body, code);
+
         args.push(code.join(''));
         return Function.apply(null, args)
     }

@@ -5,16 +5,15 @@
         <script src="../libs/esprima.js"></script>
         <script src="../js/promisify.js"></script>
         <script>
-            function inc(a) {
-                return a+ a;
+            function inc(a, b) {
+                return a+ b;
             }
             
             var incP = promisify.compile(inc);
             
             console.log(incP.toSource());
                         
-            var arg = new promise.Variable(promise.laterData(1, 1000))
-            var ret = incP(arg);
+            var ret = incP(promise.laterData(1, 1000), promise.laterData(2, 500));
             
             ret.kept(function(data){
                 console.log(data);
