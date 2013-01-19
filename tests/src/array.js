@@ -80,7 +80,7 @@ promiseTest(
     function () {
         var a = new DynamicArray();
         a.set(laterData(0, 100), laterData('v', 50));
-        return a.get(laterData(0, 50)).current;
+        return a.get(laterData(0, 50));
     },
     function (data) {
         strictEqual(data, 'v');
@@ -94,7 +94,7 @@ promiseTest(
         var a = new DynamicArray();
         a.set(laterData(2, 100), laterData('v1', 50));
         a.set(laterData(2, 50), laterData('v2', 50));
-        return a.get(nowData(2)).current;
+        return a.get(nowData(2));
     },
     function (data) {
         strictEqual(data, 'v2');
@@ -107,7 +107,7 @@ promiseTest(
     function () {
         var a = new DynamicArray();
         a.set(laterData(2, 100), laterData('v1', 50));
-        var ret = a.get(laterData(2, 50)).current;
+        var ret = a.get(laterData(2, 50));
         a.set(nowData(2), laterData('v2', 50));
         return ret;
     },
@@ -145,7 +145,7 @@ promiseTest(
     0,
     function () {
         var a = new DynamicArray([laterData('v1', 50), nowData('v2')]);
-        return a.get(nowData(1)).current;
+        return a.get(nowData(1));
     },
     function (data) {
         strictEqual(data, 'v2');
@@ -157,7 +157,7 @@ promiseTest(
     50,
     function () {
         var a = new DynamicArray([laterData('v1', 50), nowData('v2')]);
-        return a.get(laterData(0, 50)).current;
+        return a.get(laterData(0, 50));
     },
     function (data) {
         strictEqual(data, 'v1');

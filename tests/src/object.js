@@ -42,7 +42,7 @@ promiseTest(
     function () {
         var a = new DynamicObject();
         a.set(laterData('k', 100), laterData('v', 50));
-        return a.get(laterData('k', 50)).current;
+        return a.get(laterData('k', 50));
     },
     function (data) {
         strictEqual(data, 'v');
@@ -56,7 +56,7 @@ promiseTest(
         var a = new DynamicObject();
         a.set(laterData('k', 100), laterData('v1', 50));
         a.set(laterData('k', 50), laterData('v2', 50));
-        return a.get(nowData('k')).current;
+        return a.get(nowData('k'));
     },
     function (data) {
         strictEqual(data, 'v2');
@@ -69,7 +69,7 @@ promiseTest(
     function () {
         var a = new DynamicObject();
         a.set(laterData('k', 100), laterData('v1', 50));
-        var ret = a.get(laterData('k', 50)).current;
+        var ret = a.get(laterData('k', 50));
         a.set(nowData('k'), laterData('v2', 50));
         return ret;
     },
@@ -83,7 +83,7 @@ promiseTest(
     0,
     function () {
         var a = new DynamicObject({'k': nowData('v')});
-        return a.get(nowData('k')).current;
+        return a.get(nowData('k'));
     },
     function (data) {
         strictEqual(data, 'v');
@@ -95,7 +95,7 @@ promiseTest(
     50,
     function () {
         var a = new DynamicObject({'k': laterData('v', 50)});
-        return a.get(laterData('k', 50)).current;
+        return a.get(laterData('k', 50));
     },
     function (data) {
         strictEqual(data, 'v');
