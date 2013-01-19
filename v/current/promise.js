@@ -310,7 +310,18 @@ extend(Collection.prototype, {
             that._dequeue(); // can be dequeued immediately
         });
             
-        return ret;
+        var that = this;
+        return {
+            current: ret,
+            assign: function (value) {
+                return that.set(index, value);
+            },
+            assignPostfix: function (value) {
+                var original = this.current;
+                that.set(index, value);
+                return original;
+            }
+        };
     },
     set: function (index, value) {
         var that = this;
@@ -388,9 +399,9 @@ exports.set = set;
 // DynamicArray class
 /////////////////////////////////////////////////////
 
-function DynamicArray() {
+function DynamicArray(init) {
     DynamicArray.Parent.call(this);
-    this.currents = [];
+    this.currents = init || [];
 }
 
 derive(DynamicArray, Collection);
@@ -435,9 +446,9 @@ exports.length = length;
 // DynamicObject class
 /////////////////////////////////////////////////////
 
-function DynamicObject() {
+function DynamicObject(init) {
     DynamicObject.Parent.call(this);
-    this.currents = {};
+    this.currents = init || {};
 }
 
 derive(DynamicObject, Collection);

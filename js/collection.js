@@ -27,7 +27,18 @@ extend(Collection.prototype, {
             that._dequeue(); // can be dequeued immediately
         });
             
-        return ret;
+        var that = this;
+        return {
+            current: ret,
+            assign: function (value) {
+                return that.set(index, value);
+            },
+            assignPostfix: function (value) {
+                var original = this.current;
+                that.set(index, value);
+                return original;
+            }
+        };
     },
     set: function (index, value) {
         var that = this;

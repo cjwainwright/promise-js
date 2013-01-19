@@ -2,9 +2,9 @@
 // DynamicObject class
 /////////////////////////////////////////////////////
 
-function DynamicObject() {
+function DynamicObject(init) {
     DynamicObject.Parent.call(this);
-    this.currents = {};
+    this.currents = init || {};
 }
 
 derive(DynamicObject, Collection);

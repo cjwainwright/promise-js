@@ -409,10 +409,114 @@ promiseTest(
     }
 );
 
+module("DynamicObject");
+
+promiseTest(
+    "Setting a value immediately should return the value",
+    0,
+    function () {
+        var a = new DynamicObject();
+        return a.set(nowData('k'), nowData('v'));
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
+promiseTest(
+    "Setting a value with delayed key should return the value",
+    0,
+    function () {
+        var a = new DynamicObject();
+        return a.set(laterData('k', 100), nowData('v'));
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
+promiseTest(
+    "Setting a value with delayed key and value should return the value",
+    50,
+    function () {
+        var a = new DynamicObject();
+        return a.set(laterData('k', 100), laterData('v', 50));
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
+promiseTest(
+    "Getting a value with delayed key should return the last set value for that key", 
+    100,
+    function () {
+        var a = new DynamicObject();
+        a.set(laterData('k', 100), laterData('v', 50));
+        return a.get(laterData('k', 50)).current;
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
+promiseTest(
+    "Sets should happen in correct order, irrespective of order promises are kept", 
+    100,
+    function () {
+        var a = new DynamicObject();
+        a.set(laterData('k', 100), laterData('v1', 50));
+        a.set(laterData('k', 50), laterData('v2', 50));
+        return a.get(nowData('k')).current;
+    },
+    function (data) {
+        strictEqual(data, 'v2');
+    }
+);
+
+promiseTest(
+    "Subsequent sets should not affect a waiting get", 
+    100,
+    function () {
+        var a = new DynamicObject();
+        a.set(laterData('k', 100), laterData('v1', 50));
+        var ret = a.get(laterData('k', 50)).current;
+        a.set(nowData('k'), laterData('v2', 50));
+        return ret;
+    },
+    function (data) {
+        strictEqual(data, 'v1');
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicObject should return correct values when calling get (immediate)",
+    0,
+    function () {
+        var a = new DynamicObject({'k': nowData('v')});
+        return a.get(nowData('k')).current;
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicObject should return correct values when calling get (delayed)",
+    50,
+    function () {
+        var a = new DynamicObject({'k': laterData('v', 50)});
+        return a.get(laterData('k', 50)).current;
+    },
+    function (data) {
+        strictEqual(data, 'v');
+    }
+);
+
 module("DynamicArray");
 
 promiseTest(
-    "A new DynamicArray should have length 0", 
+    "A new uninitialised DynamicArray should have length 0", 
     0,
     function () {
         var a = new DynamicArray();
@@ -428,10 +532,10 @@ promiseTest(
     0,
     function () {
         var a = new DynamicArray();
-        return a.set(nowData(0), nowData(1));
+        return a.set(nowData(0), nowData('v'));
     },
     function (data) {
-        strictEqual(data, 1);
+        strictEqual(data, 'v');
     }
 );
 
@@ -440,10 +544,10 @@ promiseTest(
     0,
     function () {
         var a = new DynamicArray();
-        return a.set(laterData(0, 100), nowData(1));
+        return a.set(laterData(0, 100), nowData('v'));
     },
     function (data) {
-        strictEqual(data, 1);
+        strictEqual(data, 'v');
     }
 );
 
@@ -452,10 +556,10 @@ promiseTest(
     50,
     function () {
         var a = new DynamicArray();
-        return a.set(laterData(0, 100), laterData(1, 50));
+        return a.set(laterData(0, 100), laterData('v', 50));
     },
     function (data) {
-        strictEqual(data, 1);
+        strictEqual(data, 'v');
     }
 );
 
@@ -464,7 +568,7 @@ promiseTest(
     100,
     function () {
         var a = new DynamicArray();
-        a.set(laterData(0, 100), laterData(1, 50));
+        a.set(laterData(0, 100), laterData('v', 50));
         return a.length();
     },
     function (data) {
@@ -477,11 +581,11 @@ promiseTest(
     100,
     function () {
         var a = new DynamicArray();
-        a.set(laterData(0, 100), laterData(1, 50));
+        a.set(laterData(2, 100), laterData('v', 50));
         return a.length();
     },
     function (data) {
-        strictEqual(data, 1);
+        strictEqual(data, 3);
     }
 );
 
@@ -490,11 +594,11 @@ promiseTest(
     100,
     function () {
         var a = new DynamicArray();
-        a.set(laterData(0, 100), laterData(1, 50));
-        return a.get(laterData(0, 50));
+        a.set(laterData(0, 100), laterData('v', 50));
+        return a.get(laterData(0, 50)).current;
     },
     function (data) {
-        strictEqual(data, 1);
+        strictEqual(data, 'v');
     }
 );
 
@@ -503,12 +607,12 @@ promiseTest(
     100,
     function () {
         var a = new DynamicArray();
-        a.set(laterData(2, 100), laterData(1, 50));
-        a.set(laterData(2, 50), laterData(2, 50));
-        return a.get(nowData(2));
+        a.set(laterData(2, 100), laterData('v1', 50));
+        a.set(laterData(2, 50), laterData('v2', 50));
+        return a.get(nowData(2)).current;
     },
     function (data) {
-        strictEqual(data, 2);
+        strictEqual(data, 'v2');
     }
 );
 
@@ -517,13 +621,61 @@ promiseTest(
     100,
     function () {
         var a = new DynamicArray();
-        a.set(laterData(2, 100), laterData(1, 50));
-        var ret = a.get(laterData(2, 50));
-        a.set(nowData(2), laterData(2, 50));
+        a.set(laterData(2, 100), laterData('v1', 50));
+        var ret = a.get(laterData(2, 50)).current;
+        a.set(nowData(2), laterData('v2', 50));
         return ret;
     },
     function (data) {
+        strictEqual(data, 'v1');
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicArray should have correct length 1", 
+    0,
+    function () {
+        var a = new DynamicArray([nowData('v')]);
+        return a.length();
+    },
+    function (data) {
         strictEqual(data, 1);
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicArray should have correct length 2", 
+    0,
+    function () {
+        var a = new DynamicArray([nowData('v1'), laterData('v2', 50)]);
+        return a.length();
+    },
+    function (data) {
+        strictEqual(data, 2);
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicArray should return correct values when calling get (immediate)",
+    0,
+    function () {
+        var a = new DynamicArray([laterData('v1', 50), nowData('v2')]);
+        return a.get(nowData(1)).current;
+    },
+    function (data) {
+        strictEqual(data, 'v2');
+    }
+);
+
+promiseTest(
+    "A new initialised DynamicArray should return correct values when calling get (delayed)",
+    50,
+    function () {
+        var a = new DynamicArray([laterData('v1', 50), nowData('v2')]);
+        return a.get(laterData(0, 50)).current;
+    },
+    function (data) {
+        strictEqual(data, 'v1');
     }
 );
 

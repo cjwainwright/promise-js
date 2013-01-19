@@ -30,6 +30,14 @@
         '++': 'inc',
         '--': 'dec'
     };
+    
+    var _getKey = function(ast) {
+        switch(ast.type) {
+            case 'Literal': return ast.raw;
+            case 'Identifier': return ast.name;
+        }
+        console.error("unknown key type " + ast.type);
+    }
 
     var processors = {
         EmptyStatement: function (ast, code) {
@@ -112,6 +120,25 @@
                 default:
                     console.error("unknown argument type for update expression: " + ast.argument.type);
             }
+        },
+        ObjectExpression: function (ast, code) {
+            code.push('new promise.DynamicObject({');
+            var properties = ast.properties.forEach(function (property, index) {
+                if(index > 0) {
+                    code.push(', ');
+                }
+                
+                if(property.kind == 'init') {
+                    code.push(_getKey(property.key), ': ');
+                    process(property.value, code);
+                } else {
+                    console.error("unknown property kind " + property.kind);
+                }
+            });
+            code.push('})');
+        },
+        MemberExpression: function (ast, code) {
+            //todo
         }
     }
 

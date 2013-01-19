@@ -6,6 +6,7 @@
         <script src="../js/promisify.js"></script>
         <script>
             function inc(a, b) {
+                var c = {a: 1};
                 return a+ b;
             }
             
@@ -17,6 +18,8 @@
             
             ret.kept(function(data){
                 console.log(data);
+            }).broken(function(){
+                console.log('broken');
             });
         </script>
     </head>

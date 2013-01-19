@@ -2,9 +2,9 @@
 // DynamicArray class
 /////////////////////////////////////////////////////
 
-function DynamicArray() {
+function DynamicArray(init) {
     DynamicArray.Parent.call(this);
-    this.currents = [];
+    this.currents = init || [];
 }
 
 derive(DynamicArray, Collection);

@@ -6,4 +6,5 @@ promise.exportTo(window);
 //#include operatorseq.js
 //#include operatorslt.js
 //#include variable.js
+//#include object.js
 //#include array.js
