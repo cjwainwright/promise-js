@@ -94,8 +94,34 @@ function set(collection, index, value) {
     return value;
 }
 
+function getMember(collection, index) {
+    var member = {
+        get val() {
+            var ret = new Promise();
+            collection.kept(function (data){
+                data.get(index).bindTo(ret);
+            }).broken(function () {
+                ret.setBroken();
+            });
+            return ret;
+        },
+        set val(value) {
+            var ret = new Promise();
+            collection.kept(function (data){
+                data.set(index, value).bindTo(ret);
+            }).broken(function () {
+                ret.setBroken();
+            });
+            return ret;
+        }
+    };
+
+    return member;
+}
+
 /////////////////////////////////////////////////////
 
+exports.getMember = getMember;
 exports.get = get;
 exports.set = set;
 

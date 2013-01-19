@@ -50,38 +50,39 @@
         },
         ExpressionStatement: function (ast, code) {
             process(ast.expression, code);
+            code.push(';\n');
         },
         ReturnStatement: function (ast, code) {
             code.push('return ');
-            process(ast.argument, code);
+            if(ast.argument) {
+                process(ast.argument, code);
+            } else {
+                code.push('promise.unit()')
+            }
             code.push(';');
         },
         Literal: function (ast, code) {
             code.push('promise.unit(', ast.raw, ')');
         },
         Identifier: function (ast, code) {
-            code.push(ast.name, '.current');
+            code.push(ast.name);
         },
         VariableDeclaration: function (ast, code) {
-            ast.declarations.forEach(function (decl) {
-                code.push('var ', decl.id.name, ' = new promise.Variable(');
-                process(decl.init, code);
-                code.push(');');
+            code.push(ast.kind);
+            ast.declarations.forEach(function (decl, index) {
+                code.push(index == 0 ? ' ' : ', ');
+                process(decl.id, code);
+                if(decl.init) {
+                    code.push(' = ');
+                    process(decl.init, code);
+                }
             });
+            code.push(';');
         },
         AssignmentExpression: function (ast, code) {
-            switch(ast.left.type) {
-                case 'Identifier': 
-                    code.push(ast.left.name, '.assign(');
-                    process(ast.right, code);
-                    code.push(')');
-                    break;
-                case 'MemberExpression':
-                    console.error("member expression assignments not currently supported");
-                    break;
-                default:
-                    console.error("unknown left type for assignment expression: " + ast.left.type);
-            }
+            process(ast.left, code);
+            code.push(' = ');
+            process(ast.right, code);
         },
         UnaryExpression: function (ast, code) {
             var unary = unaries[ast.operator];
@@ -106,24 +107,30 @@
             }
         },
         UpdateExpression: function (ast, code) {
-            switch(ast.argument.type) {
-                case 'Identifier':
-                    var assigner = ast.prefix ? 'assign' : 'assignPostfix';
-                    var update = updaters[ast.operator];
-                    if(update != null) {
-                        code.push(ast.argument.name, '.', assigner, '(promise.', update, '(', ast.argument.name, '.current))');
-                    }
-                    break;
-                case 'MemberExpression':
-                    console.error("member expression assignments not currently supported");
-                    break;
-                default:
-                    console.error("unknown argument type for update expression: " + ast.argument.type);
+            var update = updaters[ast.operator];
+            if(update != null) {
+                if(ast.prefix) {
+                    code.push('(');
+                    process(ast.argument, code);
+                    code.push(' = promise.', update, '(');
+                    process(ast.argument, code);
+                    code.push('))');
+                } else {
+                    code.push('(function(){ var $ret = ');
+                    process(ast.argument, code);
+                    code.push(';');
+                    process(ast.argument, code);
+                    code.push(' = promise.', update, '(');
+                    process(ast.argument, code);
+                    code.push('); return $ret;}())');                
+                }
+            } else {
+                console.error("unknown update operator " + ast.operator);
             }
         },
         ObjectExpression: function (ast, code) {
-            code.push('new promise.DynamicObject({');
-            var properties = ast.properties.forEach(function (property, index) {
+            code.push('promise.unit(new promise.DynamicObject({');
+            ast.properties.forEach(function (property, index) {
                 if(index > 0) {
                     code.push(', ');
                 }
@@ -135,23 +142,45 @@
                     console.error("unknown property kind " + property.kind);
                 }
             });
-            code.push('})');
+            code.push('}))');
+        },
+        ArrayExpression: function (ast, code) {
+            code.push('promise.unit(new promise.DynamicArray([');
+            ast.elements.forEach(function (element, index) {
+                if(index > 0) {
+                    code.push(', ');
+                }
+                process(element, code);
+            });
+            code.push(']))');
         },
         MemberExpression: function (ast, code) {
-            //todo
+            code.push('promise.getMember(');
+            process(ast.object, code);
+            code.push(', ');
+            if (ast.computed) {
+                process(ast.property, code);
+            } else {
+                code.push('promise.unit(\'', ast.property.name, '\')');
+            }
+            code.push(').val');
         }
     }
 
     function compile(f) {
         var ast = esprima.parse(f.toSource());
         
-        if(ast.body[0].type != 'FunctionDeclaration') {
-            throw "Not a function declaration";
+        var functionDecl = ast.body[0];
+        if(functionDecl.type != 'FunctionDeclaration') {
+            if(ast.body[0].expression && ast.body[0].expression.type == 'FunctionExpression') {
+                functionDecl = ast.body[0].expression;
+            } else {
+                throw new Error("Not a function declaration");
+            }
         }
         
-        var functionDecl = ast.body[0];
         if(functionDecl.body.type != 'BlockStatement') {
-            throw "Function doesn't contain block statement";
+            throw new Error("Function doesn't contain block statement");
         }
         
         var params = functionDecl.params;
@@ -159,14 +188,11 @@
         
         var code = [];
         
-        //preamble - convert the promises passed in to the function into variables, we can overwrite the actual function args as they'll only be used in variable form
-        args.forEach(function (arg) {
-            code.push(arg, ' = new promise.Variable(', arg, ');\n');
-        });
         process(functionDecl.body, code);
 
         args.push(code.join(''));
-        return Function.apply(null, args)
+        
+        return Function.apply(null, args);
     }
     
     exports.compile = compile;
