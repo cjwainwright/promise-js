@@ -13,16 +13,31 @@
             promise.exportTo(window);
 
             window.onload = function () {
-                var n = new Variable(nowData(0)),
-                    total = new Variable(nowData(0));
-                loopWhile([n], function (n) { 
-                    return lt(n.current, nowData(5)); 
-                }, [n, total], function (n, total) {
-                    total.assign(add(total.current, inputData(n.current, function (v) { return v - 0; } )));
-                    n.assign(add(n.current, laterData(1, 2000)));
-                });
+
+                function toNum(v) { return v - 0; }
                 
-                total.current.kept(function (data) {
+                var n = unit(0), 
+                    total = unit(0);
+                    
+                var $n = n, n = new Promise();
+                var $total = total, total = new Promise();
+                    
+                (function loop() {
+                    lt($n, unit(5)).kept(function (data) {
+                        if (data) {
+                            $total = add($total, inputData($n, toNum));
+                            $n = add($n, laterData(1, 2000));
+                            loop();
+                        } else {
+                            $n.bindTo(n);
+                            $total.bindTo(total);
+                        }
+                    }).broken(function () {
+                        throw new Error("Loop condition broken");
+                    });
+                })();
+            
+                total.kept(function (data) {
                     var input = document.getElementById('result');
                     input.value = data;
                 });

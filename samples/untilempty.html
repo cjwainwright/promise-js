@@ -11,15 +11,22 @@
             promise.exportTo(window);
 
             window.onload = function () {
-                var cont = new Variable(nowData(true));
-                loopWhile(
-                    [cont], 
-                    function (cont) { return cont.current; }, 
-                    [cont], 
-                    function (cont) {
-                        cont.assign(neq(nowData(''), inputData(laterData('', 3000))));
-                    }
-                );
+                
+                var cont = unit(true);
+                var $cont = cont, cont = new Promise();
+                (function loop() {
+                    $cont.kept(function (data) {
+                        if(data) {
+                            $cont = neq(inputData(laterData('', 3000)), unit(''));
+                            loop();
+                        } else {
+                            $cont.bindTo(cont);
+                        }
+                    }).broken(function(){
+                        throw new Error("Loop condition broken");
+                    });
+                })();
+                
             };
         </script>
     </head>
