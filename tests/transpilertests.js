@@ -1,12 +1,10 @@
-function normalise(code) {
-    return code.replace(/\s/g, "");
-}
-
 function testCompile(name, source, expected) {
     test(name, function() {
-        expected = expected.toSource();
-        var result = promisify.compile(source).toSource();
-        strictEqual(normalise(result), normalise(expected), result);
+        var result = promisify.compile(source);
+        var resultSource = result.toSource();
+        var resultTree = esprima.parse(resultSource);
+        var expectedTree = esprima.parse(expected.toSource());
+        deepEqual(resultTree, expectedTree, resultSource);
     });
 }
 
