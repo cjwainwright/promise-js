@@ -1,16 +1,18 @@
-(function (exports) {
-    
+(function (exports, parse, log) {
+
     var process = function(ast, code) {
         if(ast != null) {
             var processor = processors[ast.type];
             if(processor) {
                 processor(ast, code);
             } else {
-                console.error("unknown type " + ast.type);
+                log.error("unknown type " + ast.type);
             }
         }
     };
 
+    var ns = 'promise.';
+    
     var unaries = {
         '!': 'not'
     };
@@ -36,7 +38,7 @@
             case 'Literal': return ast.raw;
             case 'Identifier': return ast.name;
         }
-        console.error("unknown key type " + ast.type);
+        log.error("unknown key type " + ast.type);
     }
 
     var processors = {
@@ -57,12 +59,12 @@
             if(ast.argument) {
                 process(ast.argument, code);
             } else {
-                code.push('promise.unit()')
+                code.push(ns, 'unit()')
             }
             code.push(';');
         },
         Literal: function (ast, code) {
-            code.push('promise.unit(', ast.raw, ')');
+            code.push(ns, 'unit(', ast.raw, ')');
         },
         Identifier: function (ast, code) {
             code.push(ast.name);
@@ -87,23 +89,23 @@
         UnaryExpression: function (ast, code) {
             var unary = unaries[ast.operator];
             if(unary != null) {
-                code.push('promise.', unary, '(');
+                code.push(ns, unary, '(');
                 process(ast.argument, code);
                 code.push(')');
             } else {
-                console.error("unknown unary operator " + ast.operator);
+                log.error("unknown unary operator " + ast.operator);
             }
         },
         BinaryExpression: function (ast, code) {
             var binary = binaries[ast.operator];
             if(binary != null) {
-                code.push('promise.', binary, '(');
+                code.push(ns, binary, '(');
                 process(ast.left, code);
                 code.push(', ');
                 process(ast.right, code);
                 code.push(')');
             } else {
-                console.error("unknown binary operator " + ast.operator);
+                log.error("unknown binary operator " + ast.operator);
             }
         },
         UpdateExpression: function (ast, code) {
@@ -112,7 +114,7 @@
                 if(ast.prefix) {
                     code.push('(');
                     process(ast.argument, code);
-                    code.push(' = promise.', update, '(');
+                    code.push(' = ', ns, update, '(');
                     process(ast.argument, code);
                     code.push('))');
                 } else {
@@ -120,16 +122,16 @@
                     process(ast.argument, code);
                     code.push(';');
                     process(ast.argument, code);
-                    code.push(' = promise.', update, '(');
+                    code.push(' = ', ns, update, '(');
                     process(ast.argument, code);
                     code.push('); return $ret;}())');                
                 }
             } else {
-                console.error("unknown update operator " + ast.operator);
+                log.error("unknown update operator " + ast.operator);
             }
         },
         ObjectExpression: function (ast, code) {
-            code.push('promise.unit(new promise.DynamicObject({');
+            code.push(ns, 'unit(new ', ns, 'DynamicObject({');
             ast.properties.forEach(function (property, index) {
                 if(index > 0) {
                     code.push(', ');
@@ -139,13 +141,13 @@
                     code.push(_getKey(property.key), ': ');
                     process(property.value, code);
                 } else {
-                    console.error("unknown property kind " + property.kind);
+                    log.error("unknown property kind " + property.kind);
                 }
             });
             code.push('}))');
         },
         ArrayExpression: function (ast, code) {
-            code.push('promise.unit(new promise.DynamicArray([');
+            code.push(ns, 'unit(new ', ns, 'DynamicArray([');
             ast.elements.forEach(function (element, index) {
                 if(index > 0) {
                     code.push(', ');
@@ -155,20 +157,20 @@
             code.push(']))');
         },
         MemberExpression: function (ast, code) {
-            code.push('promise.getMember(');
+            code.push(ns, 'getMember(');
             process(ast.object, code);
             code.push(', ');
             if (ast.computed) {
                 process(ast.property, code);
             } else {
-                code.push('promise.unit(\'', ast.property.name, '\')');
+                code.push(ns, 'unit(\'', ast.property.name, '\')');
             }
             code.push(').val');
         }
     }
 
     function compile(f) {
-        var ast = esprima.parse(f.toSource());
+        var ast = parse(f.toSource());
         
         var functionDecl = ast.body[0];
         if(functionDecl.type != 'FunctionDeclaration') {
@@ -197,4 +199,8 @@
     
     exports.compile = compile;
     
-})(typeof exports === 'undefined' ? (promisify = {}) : exports);
+})(
+    typeof exports === 'undefined' ? (promisify = {}) : exports,
+    typeof esprima === 'undefined' ? function(){throw new Error("No parsing library available"); } : esprima.parse,
+    console || { error: function(){} }
+);
