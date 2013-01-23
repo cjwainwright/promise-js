@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Promise JS Playground</title>
+        <script src="codemirror/codemirror.js"></script>
+        <script src="codemirror/javascript.js"></script>
+        <script src="../../v/current/promise.js"></script>
+        <script src="../../libs/esprima.js"></script>
+        <script src="../../js/promisify.js"></script>
+        <link href="codemirror/codemirror.css" rel="stylesheet" type="text/css">
+        <style>
+            body {
+                font-family: arial, helvetica, sans-serif;
+                color: #333;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+        
+            h2 {
+                font-size: 1em;
+            }
+
+            .source, .target {
+                width: 50%;
+                float: left;
+            }
+            
+            .wrapper {
+                margin: 10px;
+                 border: solid 1px #999;
+           }
+            
+            .wrapper h2 {
+                margin: 0;
+                padding: 0.1em 0.5em;
+                background-color: #DEF;
+                border-bottom: solid 1px #AAA;
+            }
+            
+            .frame {
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Promise JS Playground</h1>
+        <p>
+            Enter code in the "source code" editor on the left and see how the transpiled code looks in the "promised code" editor on the right.
+        </p>
+        <div class="source">
+            <div class="wrapper">
+            <h2>Source code</h2>
+<textarea id="source">
+var a = 1;
+++a;
+
+var b = a + 1;
+</textarea>
+            </div>
+        </div>
+        <div class="target">
+            <div class="wrapper">
+                <h2>Promised code</h2>
+                <textarea id="target"></textarea>
+             </div>
+        </div>
+        <script>
+            var editorSource = CodeMirror.fromTextArea(document.getElementById("source"), {
+                lineNumbers: true,
+                matchBrackets: true,
+                extraKeys: {"Enter": "newlineAndIndentContinueComment"}
+            });
+
+            var editorTarget = CodeMirror.fromTextArea(document.getElementById("target"), {
+                lineNumbers: true,
+                matchBrackets: true,
+                extraKeys: {"Enter": "newlineAndIndentContinueComment"}
+            });
+            
+            function onChange(instance){
+                var result = promisify.map(instance.getValue());
+                editorTarget.setValue(result);
+            }
+
+            onChange(editorSource);
+            editorSource.on("change", onChange);
+        </script>
+    </body>
+</html>

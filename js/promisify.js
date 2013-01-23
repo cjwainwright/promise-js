@@ -42,6 +42,12 @@
     }
 
     var processors = {
+        Program: function (ast, code) {
+            ast.body.forEach(function (stmt) {
+                process(stmt, code);
+                code.push('\n');
+            });
+        },
         EmptyStatement: function (ast, code) {
         },
         BlockStatement: function (ast, code) {
@@ -197,6 +203,14 @@
         return Function.apply(null, args);
     }
     
+    function map(input) {
+        var code = [];
+        var ast = parse(input, code);
+        process(ast, code);
+        return code.join('');
+    }
+    
+    exports.map = map;
     exports.compile = compile;
     
 })(
