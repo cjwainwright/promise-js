@@ -5,6 +5,5 @@ promise.exportTo(window);
 //#include fmap.js
 //#include operatorseq.js
 //#include operatorslt.js
-//#include variable.js
 //#include object.js
 //#include array.js

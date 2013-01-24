@@ -1,7 +1,8 @@
 promise-js
 ==========
 
-A JavaScript library designed as the target of transcompilation from a language in which everything is a [promise](http://en.wikipedia.org/wiki/Promise_%28programming%29). Note this is a work in progress. The source language is probably going to end up as a subset of JavaScript itself.
+A JavaScript library designed as the target of transcompilation from a language in which everything is a [promise](http://en.wikipedia.org/wiki/Promise_%28programming%29). Note this is a work in progress. The source language is a subset of JavaScript itself.
+Transpilation can done dynamically.
 
 The basics
 --------
@@ -20,13 +21,13 @@ Now we execute the second line, but still don't know the value of `a`. We procee
 The transcompiled version of the above code should be:
 
 ```js
-var a = new Variable(laterData(1, 1000));
-var b = new Variable(add(a.current, nowData(2));
+var a = laterData(1, 1000);
+var b = add(a.current, unit(2));
 ```
 
-Here, `laterData` is just a convenient test method which takes the role of `1'`. The variables are created with the `Variable` constructor, assigning promises to a variable is either done at construction time, or later with the `assign` method. Note the `current` property on the variable exposes the assigned promise.
+Here, `laterData` is just a convenient test method which takes the role of `1'`.
 
-Note, these objects and methods (such as `Variable` and `add`) are exposed on the `promise` namespace in the library. If you'd rather not keep writing `promise.Variable` etc. you can make them global so you can use them as above by calling
+Note, these objects and methods (such as `unit` and `add`) are exposed on the `promise` namespace in the library. If you'd rather not keep writing `promise.add` etc. you can make them global so you can use them as above by calling
 
 ```js
 promise.exportTo(window);
@@ -35,16 +36,17 @@ promise.exportTo(window);
 What it can do so far
 -----
 * Arithmetic and comparison (`+`, `*`, `==`, `<`, etc.)
-* A general way to map any function of values to a function of promises (`fmap`, think [Monads](http://en.wikipedia.org/wiki/Monad_(functional_programming)))
-* Variables (`var`)
+* A general way to map any function of values to a function of promises (`fmap`, think [Functors](http://en.wikipedia.org/wiki/Map_%28higher-order_function%29#Generalization))
 * Objects (`{}` get and set accessors)
 * Arrays (`[]` get and set accessors)
 * Branching (`switch`, `if`, `else`)
 * Looping (`while`)
 
-See the samples for examples of all of these.
+See the samples for examples of these.
 
-What it can't do yet
+The transpiler
 -----
-* There is no (trans)compiler from the as yet mysterious "source" language
-* All the things you want from a language that aren't in the previous list!
+
+There is a transpiler which makes use of the [Esprima](http://esprima.org/) JavaScript parser, the transpiler is exposed in the `promisify` namespace.
+Functions written in JavaScript can be dynamically compiled into a new function accepting promises, a kind of glorified `fmap`. This is currently under development,
+you can play with transpilation in the Playground.
