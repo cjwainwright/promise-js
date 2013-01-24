@@ -17,8 +17,6 @@
     //#include array.js
     //#include object.js
     //#include operations.js
-    //#include flow.js
-    //#include loop.js
     //#include providers.js
 
 })(typeof exports === 'undefined' ? (promise = {}) : exports);
