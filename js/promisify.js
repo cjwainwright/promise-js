@@ -6,12 +6,14 @@
             if(processor) {
                 processor(ast, code);
             } else {
+                code.push('/* unknown type ', ast.type, ' */')
                 log.error("unknown type " + ast.type);
             }
         }
     };
 
-    var ns = 'promise.';
+    var ns = 'promise.',
+        terminator = ';\n'
     
     var unaries = {
         '!': 'not'
@@ -45,20 +47,21 @@
         Program: function (ast, code) {
             ast.body.forEach(function (stmt) {
                 process(stmt, code);
-                code.push('\n');
             });
         },
         EmptyStatement: function (ast, code) {
+            code.push(terminator);
         },
         BlockStatement: function (ast, code) {
+            code.push('{\n');
             ast.body.forEach(function (stmt) {
                 process(stmt, code);
-                code.push('\n');
             });
+            code.push('}');
         },
         ExpressionStatement: function (ast, code) {
             process(ast.expression, code);
-            code.push(';\n');
+            code.push(terminator);
         },
         ReturnStatement: function (ast, code) {
             code.push('return ');
@@ -67,7 +70,7 @@
             } else {
                 code.push(ns, 'unit()')
             }
-            code.push(';');
+            code.push(terminator);
         },
         Literal: function (ast, code) {
             code.push(ns, 'unit(', ast.raw, ')');
@@ -85,7 +88,7 @@
                     process(decl.init, code);
                 }
             });
-            code.push(';');
+            code.push(terminator);
         },
         AssignmentExpression: function (ast, code) {
             process(ast.left, code);
@@ -195,8 +198,11 @@
         var args = params.map(function (param) { return param.name; } );
         
         var code = [];
-        
-        process(functionDecl.body, code);
+
+        // process each statement inside the function body to avoid duplicate block statement inside resulting function
+        functionDecl.body.body.forEach(function (stmt) {
+            process(stmt, code);
+        });
 
         args.push(code.join(''));
         

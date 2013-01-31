@@ -39,11 +39,24 @@ testCompile(
 module("EmptyStatement");
 
 testCompile(
-    "Should be removed", 
+    "Should be preseerved", 
     function anonymous() {
         ;
     },
     function anonymous() {
+        ;
+    }
+);
+
+module("BlockStatement");
+
+testCompile(
+    "Should be preserved",
+    function anonymous() {
+        {}
+    },
+    function anonymous() {
+        {}
     }
 );
 

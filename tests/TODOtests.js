@@ -27,9 +27,7 @@ testCompile(
                 ($b = promise.dec($b));
             }
             $b.bindTo(b);
-        }).broken(function () {
-            throw new Error("Can't use broken promise as predicate");
-        });
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
         
         return b;
     }
