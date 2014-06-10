@@ -10,8 +10,19 @@ function DynamicArray(init) {
 derive(DynamicArray, Collection);
 
 extend(DynamicArray.prototype, {
-    _currentsCopy: function () {
+    _currentVersion: function () {
         return this.currents.slice();
+    },
+    _increaseVersion: function () {
+    },
+    _get: function (index, version) {
+        return version[index];
+    },
+    _set: function (index, value) {
+        this.currents[index] = value;
+    },
+    _delete: function (index) {
+        delete this.currents[index];
     },
     length: function () {
         // make a promise of the return value

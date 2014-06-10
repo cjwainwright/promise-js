@@ -275,19 +275,29 @@ function Collection() {
 }
 
 extend(Collection.prototype, {
+    _currentVersion: function () {
+    },
+    _increaseVersion: function () {
+    },
+    _get: function (index, version) {
+    },
+    _set: function (index, value) {
+    },
+    _delete: function (index) {
+    },
     get: function (index) {
         // make a promise of the return value
         var ret = new Promise();
         var that = this;
         this._enqueue(function () {
-            // needs to use copy of values at moment of 'call'
-            var currents = that._currentsCopy(); // TODO - performance: if index already ready, don't need to create a copy, just use the currents directly
-            index.kept(function(i){
-                // bind the retrieved promise to the returned promise
-                if (currents[i] == null) {
-                    ret.setData(currents[i]);
+            var version = that._currentVersion(); // needs to use version of values at moment of 'call'
+            index.kept(function (i) {
+                var val = that._get(i, version);
+                // bind the retrieved promise to the returned promise, or null if there is no value specified
+                if (val == null) {
+                    ret.setData(val);
                 } else {
-                    currents[i].bindTo(ret);
+                    val.bindTo(ret);
                 }
             }).broken(function (){
                 ret.setBroken();
@@ -300,28 +310,28 @@ extend(Collection.prototype, {
     set: function (index, value) {
         var that = this;
         this._enqueue(function () {
-            index.kept(function(i){
-                that.currents[i] = value;
+            index.kept(function (i) {
+                that._set(i, value);
+                that._increaseVersion();
                 that._dequeue(); // can only be dequeued once the index is resolved
             }).broken(function (){
                 throw new Error("Can't use broken promise as array index");
             });
-        })
+        });
         return value;
     },
     'delete': function (index, value) {
         var that = this;
         this._enqueue(function () {
-            index.kept(function (i){
-                delete that.currents[i];
+            index.kept(function (i) {
+                that._delete(i);
+                that._increaseVersion();
                 that._dequeue(); // can only be dequeued once the index is resolved
             }).broken(function (){
                 throw new Error("Can't use broken promise as array index");
             });
-        })
+        });
         return value;
-    },
-    _currentsCopy: function () {
     },
     _enqueue: function (fn) {
         this._queue.push(fn);
@@ -407,8 +417,19 @@ function DynamicArray(init) {
 derive(DynamicArray, Collection);
 
 extend(DynamicArray.prototype, {
-    _currentsCopy: function () {
+    _currentVersion: function () {
         return this.currents.slice();
+    },
+    _increaseVersion: function () {
+    },
+    _get: function (index, version) {
+        return version[index];
+    },
+    _set: function (index, value) {
+        this.currents[index] = value;
+    },
+    _delete: function (index) {
+        delete this.currents[index];
     },
     length: function () {
         // make a promise of the return value
@@ -448,18 +469,33 @@ exports.length = length;
 
 function DynamicObject(init) {
     DynamicObject.Parent.call(this);
-    this.currents = init || {};
+    this._currents = init || {};
+    this._snapshot = null;
 }
 
 derive(DynamicObject, Collection);
 
 extend(DynamicObject.prototype, {
-    _currentsCopy: function () {
-        var currents = {};
-        for (var key in this.currents) {
-            currents[key] = this.currents[key];
+    _currentVersion: function () {
+        if (this._snapshot == null) {
+            this._snapshot = {};
+            for (var key in this._currents) {
+                this._snapshot[key] = this._currents[key];
+            }
         }
-        return currents;
+        return this._snapshot;
+    },
+    _increaseVersion: function () {
+        this._snapshot = null;
+    },
+    _get: function (index, version) {
+        return version[index];
+    },
+    _set: function (index, value) {
+        this._currents[index] = value;
+    },
+    _delete: function (index) {
+        delete this._currents[index];
     }
 });
 
