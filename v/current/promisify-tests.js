@@ -60,6 +60,7 @@ testCompile(
     }
 );
 
+
 module("Literal");
 
 testCompile(
@@ -91,6 +92,7 @@ testCompile(
         promise.unit('test string');
     }
 );
+
 
 module("ObjectExpression");
 
@@ -134,6 +136,7 @@ testCompile(
     }
 );
 
+
 module("ArrayExpression");
 
 testCompile(
@@ -166,6 +169,7 @@ testCompile(
     }
 );
 
+
 module("ReturnStatement");
 
 testCompile(
@@ -187,6 +191,7 @@ testCompile(
         return promise.unit(1);
     }
 );
+
 
 module("VariableDeclaration");
 
@@ -230,6 +235,7 @@ testCompile(
     }
 );
 
+
 module("Identifier");
 
 testCompile(
@@ -241,6 +247,7 @@ testCompile(
         a;
     }
 );
+
 
 module("MemberExpression");
 
@@ -273,6 +280,7 @@ testCompile(
         promise.getMember(a, promise.unit('b')).val;
     }
 );
+
 
 module("AssignmentExpression");
 
@@ -316,6 +324,7 @@ testCompile(
     }
 );
 
+
 module("UnaryExpression");
 
 testCompile(
@@ -337,6 +346,7 @@ testCompile(
         promise.not(a);
     }
 );
+
 
 module("BinaryExpression");
 
@@ -369,6 +379,7 @@ testCompile(
         promise.add(a, b);
     }
 );
+
 
 module("UpdateExpression");
 
@@ -419,11 +430,6 @@ testCompile(
         }());
     }
 );
-
-/**
-    All test here are known to fail due to code yet to be implemented
-    Move these to standard test files once code is implemented
-*/
 
 module("IfStatement");
 
