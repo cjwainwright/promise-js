@@ -294,6 +294,34 @@ var processors = {
         });
      
         code.push('}).broken(', ns, 'errorFunc("Can\'t use broken promise as predicate"))', terminator);
+    },
+    WhileStatement: function (ast, code, varMap) {
+        var nestedMap = varMap.stepIn();
+
+        varMap.forEach(function (key, value) {
+            var name = varMap.get(key);
+            var alias = nestedMap.get(key);
+            code.push('var ', alias, ' = ', name, ', ', name, ' = new ', ns, 'Promise()', terminator);
+        });
+
+        code.push('(function loop() {\n');
+
+        process(ast.test, code, nestedMap);
+        code.push('.kept(function(data){\nif(data) {');
+        process(ast.body, code, nestedMap);
+        code.push('loop()', terminator);
+        
+        code.push('} else {');
+        varMap.forEach(function (key, value) {
+            var name = varMap.get(key);
+            var alias = nestedMap.get(key);
+            code.push(alias, '.bindTo(', name, ')', terminator);
+        });
+        code.push('} ');
+
+        code.push('}).broken(', ns, 'errorFunc("Can\'t use broken promise as predicate"))', terminator);
+
+        code.push('})()', terminator);
     }
 }
 

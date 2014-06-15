@@ -1,7 +1,77 @@
 module("WhileStatement");
 
 testCompile(
-    "while example - waits for condition to be resolved before continuing with loop",
+    "while(true){}",
+    function anonymous() {
+        while(true){}
+    },
+    function anonymous() {
+        (function loop() {
+            promise.unit(true).kept(function (data) {
+                if(data) {
+                    {}
+                    loop();
+                } else {
+                }
+            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        })();
+    }
+);
+
+testCompile(
+    "var b; while(true){}",
+    function anonymous() {
+        var b;
+        while(true){}
+    },
+    function anonymous() {
+        var b;
+        
+        var $b = b, b = new promise.Promise();
+        
+        (function loop() {
+            promise.unit(true).kept(function (data) {
+                if(data) {
+                    {}
+                    loop();
+                } else {
+                    $b.bindTo(b);
+                }
+            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        })();
+    }
+);
+
+testCompile(
+    "var b = 0; while(b < 2){ ++b; }",
+    function anonymous() {
+        var b = 0;
+        while(b < 2){
+            ++b;
+        }
+    },
+    function anonymous() {
+        var b = promise.unit(0);
+        
+        var $b = b, b = new promise.Promise();
+        
+        (function loop() {
+            promise.lt($b, promise.unit(2)).kept(function (data) {
+                if(data) {
+                    {
+                        ($b = promise.inc($b));
+                    }
+                    loop();
+                } else {
+                    $b.bindTo(b);
+                }
+            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        })();
+    }
+);
+
+testCompile(
+    "while with multiple variables",
     function anonymous(cont) {
         var b = 1;
         while(cont) {
@@ -12,22 +82,68 @@ testCompile(
     function anonymous(cont) {
         var b = promise.unit(1);
         
-        var $cont = cont, cont = new Promise();
-        var $b = b, b = new Promise();
+        var $cont = cont, cont = new promise.Promise();
+        var $b = b, b = new promise.Promise();
+        
         (function loop() {
             $cont.kept(function (data) {
                 if(data) {
-                    ($b = promise.inc($b));
+                    {
+                        ($b = promise.inc($b));
+                    }
                     loop();
                 } else {
-                    $b.bindTo(b);
                     $cont.bindTo(cont);
+                    $b.bindTo(b);
                 }
-            }).broken(function(){
-                throw new Error("Loop condition broken");
-            });
+            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
         })();
 
         return b;
     }
-)
+);
+
+// Nested while statements:
+
+testCompile(
+    "var b; while(true){ while(true) {} }",
+    function anonymous() {
+        var b;
+        while(true) {
+            while(true){
+                ++b;
+            }
+        }
+    },
+    function anonymous() {
+        var b;
+        
+        var $b = b, b = new promise.Promise();
+        
+        (function loop() {
+            promise.unit(true).kept(function (data) {
+                if(data) {
+                    {
+                        var $$b = $b, $b = new promise.Promise();
+        
+                        (function loop() {
+                            promise.unit(true).kept(function (data) {
+                                if(data) {
+                                    {
+                                        ($$b = promise.inc($$b));
+                                    }
+                                    loop();
+                                } else {
+                                    $$b.bindTo($b);
+                                }
+                            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+                        })();
+                    }
+                    loop();
+                } else {
+                    $b.bindTo(b);
+                }
+            }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        })();
+    }
+);
