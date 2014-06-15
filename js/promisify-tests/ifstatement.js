@@ -1,34 +1,168 @@
 module("IfStatement");
 
 testCompile(
-    "if later example - waits for condition resoution before evaluating branches",
-    function anonymous(test) {
-        var b = 1;
-        if (test) {
-            ++b;
-        } else {
-            --b;
-        }
-        return b;
+    "if(true) { }",
+    function anonymous() {
+        if(true) { }
     },
-    function anonymous(test) {
-        var b = promise.unit(1);
-        
-        var $b = b, b = new promise.Promise();
-        test.kept(function(data){
-            if (data) {
-                ($b = promise.inc($b));
-            } else {
-                ($b = promise.dec($b));
-            }
-            $b.bindTo(b);
+    function anonymous() {
+        promise.unit(true).kept(function(data){
+            if(data){}
         }).broken(promise.errorFunc("Can't use broken promise as predicate"));
-        
-        return b;
     }
 );
 
 testCompile(
+    "if(true) { } else { }",
+    function anonymous() {
+        if(true) { } else { }
+    },
+    function anonymous() {
+        promise.unit(true).kept(function(data){
+            if(data) { } else { }
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+testCompile(
+    "var b; if(true) { }",
+    function anonymous() {
+        var b;
+        if(true) { }
+    },
+    function anonymous() {
+        var b;
+        var $b = b, b = new promise.Promise();
+        promise.unit(true).kept(function(data){
+            if(data){}
+            $b.bindTo(b);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+testCompile(
+    "var b = 1; if(b) { }",
+    function anonymous() {
+        var b = 1;
+        if(b) { }
+    },
+    function anonymous() {
+        var b = promise.unit(1);
+        var $b = b, b = new promise.Promise();
+        $b.kept(function(data){
+            if(data){}
+            $b.bindTo(b);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+testCompile(
+    "var b = 1; if(b) { ++b; }",
+    function anonymous() {
+        var b = 1;
+        if(b) { ++b; }
+    },
+    function anonymous() {
+        var b = promise.unit(1);
+        var $b = b, b = new promise.Promise();
+        $b.kept(function(data){
+            if(data) {
+                ($b = promise.inc($b));
+            }
+            $b.bindTo(b);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+testCompile(
+    "if with multiple variables",
+    function anonymous(test) {
+        var b = 1, 
+            c = 2;
+            
+        if (test) {
+            ++b;
+        } else {
+            --c;
+        }
+    },
+    function anonymous(test) {
+        var b = promise.unit(1), 
+            c = promise.unit(2);
+        
+        var $test = test, test = new promise.Promise();
+        var $b = b, b = new promise.Promise();
+        var $c = c, c = new promise.Promise();
+        $test.kept(function(data){
+            if (data) {
+                ($b = promise.inc($b));
+            } else {
+                ($c = promise.dec($c));
+            }
+            $test.bindTo(test);
+            $b.bindTo(b);
+            $c.bindTo(c);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+// Nested if statements:
+
+testCompile(
+    "var b; if(true) { if(true) {} }",
+    function anonymous() {
+        var b;
+        if(true) { if(true) {} }
+    },
+    function anonymous() {
+        var b;
+        var $b = b, b = new promise.Promise();
+        promise.unit(true).kept(function(data){
+            if(data){
+                var $$b = $b, $b = new promise.Promise();
+                promise.unit(true).kept(function(data){
+                    if(data) {}
+                    $$b.bindTo($b);
+                }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+            }
+            $b.bindTo(b);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+testCompile(
+    "var b = 1; if(b) { --b; if(b) { --b;} }",
+    function anonymous() {
+        var b = 1; 
+        if(b) { 
+            --b; 
+            if(b) { 
+                --b;
+            } 
+        }
+    },
+    function anonymous() {
+        var b = promise.unit(1);
+        var $b = b, b = new promise.Promise();
+        $b.kept(function(data){
+            if(data){
+                ($b = promise.dec($b));
+                var $$b = $b, $b = new promise.Promise();
+                $$b.kept(function(data){
+                    if(data) {
+                        ($$b = promise.dec($$b));
+                    }
+                    $$b.bindTo($b);
+                }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+            }
+            $b.bindTo(b);
+        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+    }
+);
+
+// Ignored tests:
+
+testIgnore(
     "if now example - evaluates all branches up front then assigns correct vars when condition resolved",
     function anonymous(test) {
         var b = 1;

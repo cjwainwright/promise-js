@@ -40,3 +40,42 @@ testCompile(
     }
 );
 
+testCompile(
+    "var promise;",
+    function anonymous() {
+        var promise;
+    },
+    function anonymous() {
+        var $promise;
+    }
+);
+
+testCompile(
+    "var promise = 1;",
+    function anonymous() {
+        var promise = 1;
+    },
+    function anonymous() {
+        var $promise = promise.unit(1);
+    }
+);
+
+testCompile(
+    "var $promise;",
+    function anonymous() {
+        var $promise;
+    },
+    function anonymous() {
+        var $promise;
+    }
+);
+
+testCompile(
+    "var promise, $promise;",
+    function anonymous() {
+        var promise, $promise;
+    },
+    function anonymous() {
+        var $promise, $$promise;
+    }
+);

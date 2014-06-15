@@ -8,6 +8,8 @@ function testCompile(name, source, expected) {
     });
 }
 
+function testIgnore() {}
+
 //#include general.js
 //#include emptystatement.js
 //#include blockstatement.js
