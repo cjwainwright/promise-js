@@ -8,7 +8,7 @@ testCompile(
     function anonymous() {
         promise.unit(true).kept(function(data){
             if(data){}
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -20,7 +20,7 @@ testCompile(
     function anonymous() {
         promise.unit(true).kept(function(data){
             if(data) { } else { }
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -36,7 +36,7 @@ testCompile(
         promise.unit(true).kept(function(data){
             if(data){}
             $b.bindTo(b);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -52,7 +52,7 @@ testCompile(
         $b.kept(function(data){
             if(data){}
             $b.bindTo(b);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -70,7 +70,7 @@ testCompile(
                 ($b = promise.inc($b));
             }
             $b.bindTo(b);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -102,7 +102,7 @@ testCompile(
             $test.bindTo(test);
             $b.bindTo(b);
             $c.bindTo(c);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -123,10 +123,10 @@ testCompile(
                 promise.unit(true).kept(function(data){
                     if(data) {}
                     $$b.bindTo($b);
-                }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+                }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
             }
             $b.bindTo(b);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -153,10 +153,10 @@ testCompile(
                         ($$b = promise.dec($$b));
                     }
                     $$b.bindTo($b);
-                }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+                }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
             }
             $b.bindTo(b);
-        }).broken(promise.errorFunc("Can't use broken promise as predicate"));
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
     }
 );
 
@@ -185,9 +185,7 @@ testIgnore(
             } else {
                 $2b.bindTo(b);
             }
-        }).broken(function () {
-            throw new Error("Can't use broken promise as predicate");
-        });
+        }).broken(promise.errorFunc(promise.error.conditionalBrokenPromise));
         
         return b;
     }

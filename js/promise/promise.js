@@ -34,7 +34,7 @@ extend(Promise.prototype, {
     },
     setBroken: function () {
         if (this.state != waiting) {
-            throw new Error("Attempting to break a resolved promise");
+            errorFunc(error.promiseBreakingAlreadyResolved)();
         }
         this.state = broken;
         this._onbroken.notify(this);
@@ -43,7 +43,7 @@ extend(Promise.prototype, {
     },
     setData: function (data) {
         if (this.state != waiting) {
-            throw new Error("Attempting to keep a resolved promise");
+            errorFunc(error.promiseKeepingAlreadyResolved)();
         }
         this.data = data;
         this.state = kept;

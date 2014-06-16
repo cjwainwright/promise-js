@@ -46,9 +46,7 @@ extend(Collection.prototype, {
                 that._set(i, value);
                 that._increaseVersion();
                 that._dequeue(); // can only be dequeued once the index is resolved
-            }).broken(function (){
-                throw new Error("Can't use broken promise as array index");
-            });
+            }).broken(errorFunc(error.collectionIndexBrokenPromise));
         });
         return value;
     },
@@ -59,9 +57,7 @@ extend(Collection.prototype, {
                 that._delete(i);
                 that._increaseVersion();
                 that._dequeue(); // can only be dequeued once the index is resolved
-            }).broken(function (){
-                throw new Error("Can't use broken promise as array index");
-            });
+            }).broken(errorFunc(error.collectionIndexBrokenPromise));
         });
         return value;
     },
@@ -73,7 +69,7 @@ extend(Collection.prototype, {
     },
     _dequeue: function () {
         if (this._queue.length == 0) {
-            throw new Error("Nothing to dequeue");
+            errorFunc(error.queueNothingToDequeue)();
         } else {
             this._queue.shift();
             if (this._queue.length > 0) {
@@ -98,9 +94,7 @@ function get(collection, index) {
 function set(collection, index, value) {
     collection.kept(function (data){
         data.set(index, value);
-    }).broken(function () {
-        throw new Error('Trying to set a value on a broken promise');
-    });
+    }).broken(errorFunc(error.collectionSetValueOnBrokenPromise));
     return value;
 }
 

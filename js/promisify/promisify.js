@@ -259,7 +259,7 @@ var processors = {
             code.push(alias, '.bindTo(', name, ')', terminator);
         });
      
-        code.push('}).broken(', ns, 'errorFunc("Can\'t use broken promise as predicate"))', terminator);
+        code.push('}).broken(', ns, 'errorFunc(', ns, 'error.conditionalBrokenPromise))', terminator);
     },
     WhileStatement: function (ast, code, varMap) {
         var nestedMap = varMap.stepIn();
@@ -285,7 +285,7 @@ var processors = {
         });
         code.push('} ');
 
-        code.push('}).broken(', ns, 'errorFunc("Can\'t use broken promise as predicate"))', terminator);
+        code.push('}).broken(', ns, 'errorFunc(', ns, 'error.conditionalBrokenPromise))', terminator);
 
         code.push('})()', terminator);
     }

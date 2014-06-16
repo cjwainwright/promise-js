@@ -45,9 +45,7 @@ FixedArray.prototype = {
                     }
                 }
             }
-        }).broken(function () {
-            throw new Error("Can't use broken promise as array index");
-        });
+        }).broken(errorFunc(error.collectionIndexBrokenPromise));
         return value;
     }
 };

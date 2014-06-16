@@ -38,13 +38,3 @@ function extend(target) {
 }
 
 /////////////////////////////////////////////////////
-
-function errorFunc(message) {
-    return function(){
-        throw new Error(message);
-    }
-}
-
-exports.errorFunc = errorFunc;
-
-/////////////////////////////////////////////////////

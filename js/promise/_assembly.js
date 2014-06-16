@@ -9,6 +9,7 @@
         }
     };
 
+    //#include error.js
     //#include utils.js
     //#include event.js
     //#include promise.js
