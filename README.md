@@ -85,7 +85,7 @@ Usage
 
 If you wish to use the library, merely include the two [JavaScript files](v/current/) and use to your hearts content
 
-```js
+```html
 <script src="promise-min.js"></script>
 <script src="promisify-min.js></script>
 <script>
