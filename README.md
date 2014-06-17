@@ -1,52 +1,113 @@
 promise-js
 ==========
 
-A JavaScript library designed as the target of transcompilation from a language in which everything is a [promise](http://en.wikipedia.org/wiki/Promise_%28programming%29). Note this is a work in progress. The source language is a subset of JavaScript itself.
-Transpilation can done dynamically.
 
 The basics
---------
+----------
 
-The intention is that a program could be written entirely as if it were synchronous. For example, consider the following simple program:
+Imagine a language in which everything is a promise, data may not be immediately available, but when it is it flows through your code as far as it can.
+You don't need to think about the asynchronous behaviour yourself, instead you write your code entirely as if everything were synchronous.
+All code proceeds in a non-blocking fashion and values are populated once all promises on which the value depends have been resolved.
+You can think of your code as the plumbing through which values will later flow.
 
-```
-var a = 1';
-var b = a + 2;
-```
-
-Note the `1'`, this is not a typo, it is (for want of a better notation) my way of saying that the value `1` will be retrieved asynchronously. The value we assign to `a` on the first line is not actually known at the time the line executes, instead we just have the promise of a value which will be populated with a value of `1` at a later time. 
-
-Now we execute the second line, but still don't know the value of `a`. We proceed anyway to assign to `b` a new promise which will be the result of adding the value in `a` (which is that `1'` thing) and `2`. Thus all code proceeds in a non-blocking fashion and values are populated once all promises on which the value depends have been kept (which you may prefer to call resolved or fulfilled).
-
-The transcompiled version of the above code should be:
+Let's examine each term in the following simple line of code
 
 ```js
-var a = laterData(1, 1000);
-var b = add(a.current, unit(2));
+var b = a + 1;
 ```
 
-Here, `laterData` is just a convenient test method which takes the role of `1'`.
+Remember everything is a promise, so, the variable `a` holds a promise. 
+We have not specified in this line of code where `a` comes from, for now we just take it as input to this line.
+It's value may already be resolved, or it may be resolved at some point in the future, we don't know.
 
-Note, these objects and methods (such as `unit` and `add`) are exposed on the `promise` namespace in the library. If you'd rather not keep writing `promise.add` etc. you can make them global so you can use them as above by calling
+So how do we add `1` to this? Let us first consider the term `1` itself. As everything is a promise, we can think of `1` as the promise of the value `1` that is already resolved.
+So what we're really doing is adding two promises.
+The result: another promise.
+This resulting promise is such that it will be resolved as soon as both input promises have been.
+
+Finally we assign this promise to the variable `b` and can proceed to use this promise in subsequent code. 
+
+
+Compile to JavaScript
+-----------
+
+Rather than inventing any new syntax, we take our new language to be (a subset of) JavaScript itself.
+Just as above, everything is to be thought of as a promise.
+This JavaScript is compiled to different JavaScript which implements the full promise based logic, allowing data to flow through your code asynchronously. 
+
+Let's consider an example.
+Suppose we want a function that squares a number, but we only have the promise of a number.
+In our source language this function would look like
 
 ```js
-promise.exportTo(window);
+function square(n) {
+	return n * n;
+}
 ```
+
+We can compile this function using the `compile` method on the `promisify` module.
+	
+```js
+var squarePromise = promisify.compile(square);
+```
+
+The resulting function, `squarePromise`, accepts a promise and returns the promise of the squared value.
+
+Compiled code makes use of methods in the `promise` module to implement the relevant asynchronous logic.
+In this case the compiled code would look like
+	
+```js
+function (n) {
+	return promise.mult(n, n);
+}
+```
+
+The `promisify.compile` is implemented using the [Esprima](http://esprima.org/) JavaScript parser.
+
 
 What it can do so far
 -----
+
+Currently, the following language constructs can be compiled
+
+* Values and variables (`var a = 1`) 
 * Arithmetic and comparison (`+`, `*`, `==`, `<`, etc.)
-* A general way to map any function of values to a function of promises (`fmap`, think [Functors](http://en.wikipedia.org/wiki/Map_%28higher-order_function%29#Generalization))
 * Objects (`{}` get and set accessors)
 * Arrays (`[]` get and set accessors)
-* Branching (`switch`, `if`, `else`)
+* Branching (`if`, `else`)
 * Looping (`while`)
 
-See the samples for examples of these.
+See the [samples](samples/) for examples of these, and you can play with compiling code in the [playground](samples/playground.html).
 
-The transpiler
+
+Usage
 -----
 
-There is a transpiler which makes use of the [Esprima](http://esprima.org/) JavaScript parser, the transpiler is exposed in the `promisify` namespace.
-Functions written in JavaScript can be dynamically compiled into a new function accepting promises, a kind of glorified `fmap`. This is currently under development,
-you can play with transpilation in the Playground.
+If you wish to use the library, merely include the two [JavaScript files](v/current/) and use to your hearts content
+
+```js
+<script src="promise-min.js"></script>
+<script src="promisify-min.js></script>
+<script>
+	var delta = promisify.compile(function (a, b) {
+		if (a > b) {
+			return a - b;
+		}
+		return b - a;
+	});
+</script>
+```
+
+To build the library there is currently a [build script for Windows](build/Build.bat).
+
+There are [test runners](testrunners/) for running unit tests for the promise and promisify libraries in the browser.
+
+
+Is this practical?
+-----------
+
+It's not, it's more an academic exercise for now.
+Languages are currently taking steps to make asynchronous code less complicated. 
+Promises are a step on from callbacks. 
+Yielding promises from generators makes that even more like synchronous code with a spawn function. 
+This library is the next logical step, where you don't even have to think if something is async or not.
