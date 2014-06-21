@@ -9,7 +9,9 @@
         }
     };
     
-    //#include promisify.js
+    //#include varmap.js
+    //#include processor.js
+    //#include compile.js
 
 })(
     typeof exports === 'undefined' ? (promisify = {}) : exports,
