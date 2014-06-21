@@ -262,8 +262,9 @@ function all(args) {
     return ret;
 }
 
-// TODO - really fmap should be using the transcompiler building appropriate code out of function source code
 function fmap(f) {
+    // maps a function to it's promise based equivalent. 
+    // fmap(f) is a function that returns a promise, it waits for all it's arguments to be resolved before using them to evaluate f and resolving the returned promise with the result.
     return function () {
         return all(arguments).thenData(function (data) {
             return f.apply(null, data);

@@ -90,8 +90,6 @@ VarMap.prototype.stepIn = function () {
     return map;
 };
 
-// TODO - need to handle function scope
-
 var process = function(ast, code, varMap) {
     if(ast != null) {
         var processor = processors[ast.type];
@@ -324,6 +322,8 @@ var processors = {
         code.push('})()', terminator);
     }
 }
+
+// TODO - need to handle function scope
 
 function compile(f) {
     var ast = parse(f.toSource());
