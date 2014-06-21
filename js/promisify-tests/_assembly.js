@@ -10,6 +10,7 @@ function testCompile(name, source, expected) {
 
 function testIgnore() {}
 
+//#include varmap.js
 //#include general.js
 //#include emptystatement.js
 //#include blockstatement.js

@@ -90,6 +90,8 @@ VarMap.prototype.stepIn = function () {
     return map;
 };
 
+exports.VarMap = VarMap;
+
 var process = function(ast, code, varMap) {
     if(ast != null) {
         var processor = processors[ast.type];

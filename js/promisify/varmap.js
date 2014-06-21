@@ -55,3 +55,5 @@ VarMap.prototype.stepIn = function () {
     
     return map;
 };
+
+exports.VarMap = VarMap;
