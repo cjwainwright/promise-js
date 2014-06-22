@@ -73,11 +73,11 @@ VarMap.prototype.reserve = function (key) {
     this._reserved[key] = true;
 };
 
-VarMap.prototype.stepIn = function () {
+VarMap.prototype.branch = function () {
     // redefine variables to new, non-clashing values
     var map = new VarMap();
     
-    // copy across all reserved values (note this allows multiple stepIns require new values to not clash with all previous levels)
+    // copy across all reserved values (note this allows multiple branches require new values to not clash with all previous levels)
     Object.keys(this._reserved).forEach(map.reserve.bind(map));
     
     // copy all mapped variable values to reserved values
@@ -271,50 +271,50 @@ var processors = {
     },
     IfStatement: function (ast, code, varMap) {
     
-        var nestedMap = varMap.stepIn();
+        var branchMap = varMap.branch();
     
         varMap.forEach(function (key, value) {
             var name = varMap.get(key);
-            var alias = nestedMap.get(key);
+            var alias = branchMap.get(key);
             code.push('var ', alias, ' = ', name, ', ', name, ' = new ', ns, 'Promise()', terminator);
         });
     
-        process(ast.test, code, nestedMap);
+        process(ast.test, code, branchMap);
         code.push('.kept(function(data){\nif(data)');
-        process(ast.consequent, code, nestedMap);
+        process(ast.consequent, code, branchMap);
         if(ast.alternate) {
             code.push('else ');
-            process(ast.alternate, code, nestedMap);
+            process(ast.alternate, code, branchMap);
         }
         
         varMap.forEach(function (key, value) {
             var name = varMap.get(key);
-            var alias = nestedMap.get(key);
+            var alias = branchMap.get(key);
             code.push(alias, '.bindTo(', name, ')', terminator);
         });
      
         code.push('}).broken(', ns, 'errorFunc(', ns, 'error.conditionalBrokenPromise))', terminator);
     },
     WhileStatement: function (ast, code, varMap) {
-        var nestedMap = varMap.stepIn();
+        var branchMap = varMap.branch();
 
         varMap.forEach(function (key, value) {
             var name = varMap.get(key);
-            var alias = nestedMap.get(key);
+            var alias = branchMap.get(key);
             code.push('var ', alias, ' = ', name, ', ', name, ' = new ', ns, 'Promise()', terminator);
         });
 
         code.push('(function loop() {\n');
 
-        process(ast.test, code, nestedMap);
+        process(ast.test, code, branchMap);
         code.push('.kept(function(data){\nif(data) {');
-        process(ast.body, code, nestedMap);
+        process(ast.body, code, branchMap);
         code.push('loop()', terminator);
         
         code.push('} else {');
         varMap.forEach(function (key, value) {
             var name = varMap.get(key);
-            var alias = nestedMap.get(key);
+            var alias = branchMap.get(key);
             code.push(alias, '.bindTo(', name, ')', terminator);
         });
         code.push('} ');

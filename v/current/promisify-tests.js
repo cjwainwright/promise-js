@@ -109,50 +109,50 @@ test("reserved values should map to next available prefixed value when multiple 
     strictEqual(map.get('test'), '$$$$test');
 });
 
-test("stepIn should return a new VarMap", function () {
+test("branch should return a new VarMap", function () {
     var map = this.map;
     
-    var newMap = map.stepIn();
+    var branchMap = map.branch();
     
-    ok(newMap instanceof promisify.VarMap);
-    notStrictEqual(newMap, map);
+    ok(branchMap instanceof promisify.VarMap);
+    notStrictEqual(branchMap, map);
 });
 
-test("when value mapped, retrieving same value from stepIn map should return next available prefixed value", function () {
-    var map = this.map;
-    map.get('a');
-    
-    var newMap = map.stepIn();
-    
-    strictEqual(newMap.get('a'), '$a');
-});
-
-test("when value mapped, retrieving different value from stepIn map should return next available prefixed value", function () {
+test("when value mapped, retrieving same value from branch map should return next available prefixed value", function () {
     var map = this.map;
     map.get('a');
     
-    var newMap = map.stepIn();
+    var branchMap = map.branch();
     
-    strictEqual(newMap.get('b'), 'b');
+    strictEqual(branchMap.get('a'), '$a');
 });
 
-test("when value reserved, retrieving same value from stepIn map should return next available prefixed value", function () {
+test("when value mapped, retrieving different value from branch map should return next available prefixed value", function () {
+    var map = this.map;
+    map.get('a');
+    
+    var branchMap = map.branch();
+    
+    strictEqual(branchMap.get('b'), 'b');
+});
+
+test("when value reserved, retrieving same value from branch map should return next available prefixed value", function () {
     var map = this.map;
     map.reserve('a');
     
-    var newMap = map.stepIn();
+    var branchMap = map.branch();
     
-    strictEqual(newMap.get('a'), '$a');
+    strictEqual(branchMap.get('a'), '$a');
 });
 
-test("when value reserved and mapped, retrieving same value from stepIn map should return next available prefixed value", function () {
+test("when value reserved and mapped, retrieving same value from branch map should return next available prefixed value", function () {
     var map = this.map;
     map.reserve('a');
     map.get('a');
     
-    var newMap = map.stepIn();
+    var branchMap = map.branch();
     
-    strictEqual(newMap.get('a'), '$$a');
+    strictEqual(branchMap.get('a'), '$$a');
 });
 
 module("General");
@@ -186,7 +186,7 @@ testCompile(
 module("EmptyStatement");
 
 testCompile(
-    "Should be preseerved", 
+    "Should be preserved", 
     function anonymous() {
         ;
     },

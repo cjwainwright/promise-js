@@ -39,11 +39,11 @@ VarMap.prototype.reserve = function (key) {
     this._reserved[key] = true;
 };
 
-VarMap.prototype.stepIn = function () {
+VarMap.prototype.branch = function () {
     // redefine variables to new, non-clashing values
     var map = new VarMap();
     
-    // copy across all reserved values (note this allows multiple stepIns require new values to not clash with all previous levels)
+    // copy across all reserved values (note this allows multiple branches require new values to not clash with all previous levels)
     Object.keys(this._reserved).forEach(map.reserve.bind(map));
     
     // copy all mapped variable values to reserved values
