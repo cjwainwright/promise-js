@@ -2,14 +2,21 @@ function VarMap() {
     this._map = {};
     this._mapInv = {};
     this._reserved = {};
+    
+    this._onCreate = new Event();
+    this._onBeforeGet = new Event();
+    this._onReserve = new Event();
 }
 
 VarMap.prototype._create = function (key, value) {
     this._map[key] = value;
     this._mapInv[value] = key;
+    this._onCreate.notify(this, [key, value]);
 };
 
 VarMap.prototype.get = function (key) {
+    this._onBeforeGet.notify(this, [key]);
+
     var map = this._map;
     var mapInv = this._mapInv;
     
@@ -37,6 +44,7 @@ VarMap.prototype.forEach = function (fn) {
 
 VarMap.prototype.reserve = function (key) {
     this._reserved[key] = true;
+    this._onReserve.notify(this, [key]);
 };
 
 VarMap.prototype.branch = function () {
@@ -51,7 +59,21 @@ VarMap.prototype.branch = function () {
         map.reserve(value);
     });
     
-    // TODO - need way for newly created variables in new map to create variable in source map (and thus reserved value in this map)
+    // Ensure newly created variables in branch map create variables in source map... 
+    var that = this;
+    map._onBeforeGet.add(function (key) {
+        that.get(key);
+    });
+
+    // ...and thus reserve value in branch map
+    this._onCreate.add(function (key, value) {
+        map.reserve(value);
+    });
+
+    // Ensure newly reserved variables get reserved in branch map too
+    this._onReserve.add(function (key) {
+        map.reserve(key);
+    });
     
     return map;
 };

@@ -9,6 +9,8 @@
         }
     };
     
+    //#include ../promise/utils.js
+    //#include ../promise/event.js
     //#include varmap.js
     //#include processor.js
     //#include compile.js

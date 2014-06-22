@@ -32,18 +32,91 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         }
     };
     
+/////////////////////////////////////////////////////
+// Utility functions
+/////////////////////////////////////////////////////
+
+var slice = Array.prototype.slice;
+
+/////////////////////////////////////////////////////
+
+if(typeof(Object.create) !== 'function')
+{
+    Object.create = function(o){
+        function F(){}
+        F.prototype = o;
+        return new F();
+    };
+}
+
+/////////////////////////////////////////////////////
+
+function derive(Child, Parent) {
+    Child.prototype = Object.create(Parent.prototype);
+    Child.prototype.constructor = Child;
+    Child.Parent = Parent;
+}
+
+/////////////////////////////////////////////////////
+
+function extend(target) {
+    var sources = slice.call(arguments, 1);
+    for (var i = 0, length = sources.length; i < length; i++) {
+        var source = sources[i];
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+    }
+}
+
+/////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+// Event class
+/////////////////////////////////////////////////////
+
+function Event() {
+    this._listeners = [];
+}
+
+extend(Event.prototype, {
+    add: function (listener) {
+        this._listeners.push(listener);
+    },
+    notify: function (context, args) {
+        var count = this._listeners.length;
+        for (var i = 0; i < count; i++) {
+            this._listeners[i].apply(context, args);
+        }
+    },
+    clear: function () {
+        this._listeners = [];
+    }
+});
+
+/////////////////////////////////////////////////////
+
 function VarMap() {
     this._map = {};
     this._mapInv = {};
     this._reserved = {};
+    
+    this._onCreate = new Event();
+    this._onBeforeGet = new Event();
+    this._onReserve = new Event();
 }
 
 VarMap.prototype._create = function (key, value) {
     this._map[key] = value;
     this._mapInv[value] = key;
+    this._onCreate.notify(this, [key, value]);
 };
 
 VarMap.prototype.get = function (key) {
+    this._onBeforeGet.notify(this, [key]);
+
     var map = this._map;
     var mapInv = this._mapInv;
     
@@ -71,6 +144,7 @@ VarMap.prototype.forEach = function (fn) {
 
 VarMap.prototype.reserve = function (key) {
     this._reserved[key] = true;
+    this._onReserve.notify(this, [key]);
 };
 
 VarMap.prototype.branch = function () {
@@ -85,7 +159,21 @@ VarMap.prototype.branch = function () {
         map.reserve(value);
     });
     
-    // TODO - need way for newly created variables in new map to create variable in source map (and thus reserved value in this map)
+    // Ensure newly created variables in branch map create variables in source map... 
+    var that = this;
+    map._onBeforeGet.add(function (key) {
+        that.get(key);
+    });
+
+    // ...and thus reserve value in branch map
+    this._onCreate.add(function (key, value) {
+        map.reserve(value);
+    });
+
+    // Ensure newly reserved variables get reserved in branch map too
+    this._onReserve.add(function (key) {
+        map.reserve(key);
+    });
     
     return map;
 };

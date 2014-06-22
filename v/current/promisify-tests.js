@@ -133,16 +133,7 @@ test("when value mapped, retrieving different value from branch map should retur
     
     var branchMap = map.branch();
     
-    strictEqual(branchMap.get('b'), 'b');
-});
-
-test("when value reserved, retrieving same value from branch map should return next available prefixed value", function () {
-    var map = this.map;
-    map.reserve('a');
-    
-    var branchMap = map.branch();
-    
-    strictEqual(branchMap.get('a'), '$a');
+    strictEqual(branchMap.get('b'), '$b');
 });
 
 test("when value reserved and mapped, retrieving same value from branch map should return next available prefixed value", function () {
@@ -153,6 +144,87 @@ test("when value reserved and mapped, retrieving same value from branch map shou
     var branchMap = map.branch();
     
     strictEqual(branchMap.get('a'), '$$a');
+});
+
+test("when value reserved, retrieving same value from branch map should return next available prefixed value", function () {
+    // should behave same as if reserved and mapped
+    var map = this.map;
+    map.reserve('a');
+    
+    var branchMap = map.branch();
+    
+    strictEqual(branchMap.get('a'), '$$a');
+});
+
+test("when value first accessed in source map after branching, retrieving same value from branch map should return next available prefixed value", function () {
+    var map = this.map;
+    var branchMap = map.branch();    
+    
+    var val = map.get('a');
+    
+    strictEqual(branchMap.get('a'), '$a');
+});
+
+test("when value first accessed in branch map without access in source map, should behave as if already accessed in source map", function () {
+    var map = this.map;
+    
+    var branchMap = map.branch();    
+    
+    var branchVal = branchMap.get('a');
+    var val = map.get('a');
+    
+    strictEqual(val, 'a');
+    strictEqual(branchVal, '$a');
+});
+
+test("when value reserved in source map after branching, should behave as if also reserved in branch map", function () {
+    var map = this.map;
+    
+    var branchMap = map.branch();
+    
+    map.reserve('a');
+
+    strictEqual(branchMap.get('a'), '$$a');
+});
+
+test("branching a second time should not affect the first branch (get)", function () {
+    var map = this.map;
+    var branchMap = map.branch();    
+    var branchMap2 = map.branch();    
+    
+    map.get('a');
+    
+    strictEqual(branchMap.get('a'), '$a');
+});
+
+test("branching a second time should not affect the first branch (reserve)", function () {
+    var map = this.map;
+    var branchMap = map.branch();    
+    var branchMap2 = map.branch();    
+    
+    map.reserve('a');
+    
+    strictEqual(branchMap.get('a'), '$$a');
+});
+
+test("second branch should behave as the first branch (get)", function () {
+    var map = this.map;
+    var branchMap = map.branch();    
+    var branchMap2 = map.branch();    
+    
+    map.get('a');
+    
+    strictEqual(branchMap2.get('a'), '$a');
+});
+
+test("second branch should behave as the first branch (reserve)", function () {
+    var map = this.map;
+    var branchMap = map.branch();    
+    var branchMap2 = map.branch();    
+    
+    map.reserve('a');
+    
+    strictEqual(branchMap2.get('a'), '$$a');
 });
 
 module("General");
