@@ -109,5 +109,7 @@ Is this practical?
 It's not, it's more an academic exercise for now.
 Languages are currently taking steps to make asynchronous code less complicated. 
 Promises are a step on from callbacks. 
-Yielding promises from generators makes that even more like synchronous code with a spawn function. 
-This library is the next logical step, where you don't even have to think if something is async or not.
+Yielding promises from generators allows code that looks even more like synchronous code.
+To tidy this up even further we have the proposed async/await syntax.
+The next logical step must surely be the case where you don't even have to think if something is async or not.
+That is what we're trying to address here.
