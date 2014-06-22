@@ -1,7 +1,7 @@
 module("EmptyStatement");
 
 testCompile(
-    "Should be preseerved", 
+    "Should be preserved", 
     function anonymous() {
         ;
     },
