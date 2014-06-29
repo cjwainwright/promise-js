@@ -78,4 +78,20 @@ VarMap.prototype.branch = function () {
     return map;
 };
 
+VarMap.prototype.scope = function () {
+    // create a new variable map for use within a new scope
+    // variables created in this map will not be created in the outer map
+    var map = new VarMap();
+    
+    // should reserve same values as the outer map
+    Object.keys(this._reserved).forEach(map.reserve.bind(map));
+    
+    // should map all same values as the outer map
+    this.forEach(function (key, value) {
+        map._create(key, value);
+    });
+    
+    return map;
+};
+
 exports.VarMap = VarMap;

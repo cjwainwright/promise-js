@@ -178,6 +178,22 @@ VarMap.prototype.branch = function () {
     return map;
 };
 
+VarMap.prototype.scope = function () {
+    // create a new variable map for use within a new scope
+    // variables created in this map will not be created in the outer map
+    var map = new VarMap();
+    
+    // should reserve same values as the outer map
+    Object.keys(this._reserved).forEach(map.reserve.bind(map));
+    
+    // should map all same values as the outer map
+    this.forEach(function (key, value) {
+        map._create(key, value);
+    });
+    
+    return map;
+};
+
 exports.VarMap = VarMap;
 
 var process = function(ast, code, varMap) {
@@ -188,6 +204,7 @@ var process = function(ast, code, varMap) {
         } else {
             code.push('/* unknown type ', ast.type, ' */')
             log.error("unknown type " + ast.type);
+            log.log(ast);
         }
     }
 };
@@ -410,6 +427,51 @@ var processors = {
         code.push('}).broken(', ns, 'errorFunc(', ns, 'error.conditionalBrokenPromise))', terminator);
 
         code.push('})()', terminator);
+    },
+    FunctionExpression: function (ast, code, varMap) {
+        var scopeMap = varMap.scope();
+
+        code.push('promise.unit(function ');
+        process(ast.id, code, scopeMap);
+        code.push('(');
+        
+        ast.params.forEach(function (param, index) {
+            if(index > 0) {
+                code.push(', ');
+            }
+            
+            process(param, code, scopeMap);
+        });
+
+        code.push(')');
+        process(ast.body, code, scopeMap);
+        code.push(')');
+    },
+    CallExpression: function (ast, code, varMap) {
+        code.push('(function () {\n', 'var args = arguments', terminator);
+
+        process(ast.callee, code, varMap);
+        code.push('.thenData(function (data) {\n', 'data.apply(');
+        
+        // execution context
+        if(ast.callee.type == 'MemberExpression') {
+            process(ast.callee.object, code, varMap);
+        } else {
+            code.push('null');
+        }
+        
+        code.push(', args)', terminator, '})', terminator);
+
+        code.push('})(');
+
+        ast.arguments.forEach(function (arg, index) {
+            if(index > 0) {
+                code.push(', ');
+            }
+            
+            process(arg, code, varMap);
+        });
+        code.push(')');
     }
 }
 

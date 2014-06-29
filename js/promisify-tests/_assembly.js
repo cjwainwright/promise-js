@@ -27,3 +27,5 @@ function testIgnore() {}
 //#include updateexpression.js
 //#include ifstatement.js
 //#include whilestatement.js
+//#include functionexpression.js
+//#include callexpression.js

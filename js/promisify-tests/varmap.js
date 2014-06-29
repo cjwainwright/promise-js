@@ -214,3 +214,33 @@ test("second branch should behave as the first branch (reserve)", function () {
     
     strictEqual(branchMap2.get('a'), '$$a');
 });
+
+test("when value reserved, retrieving value from scope map should give same result", function () {
+    var map = this.map;
+    map.reserve('a');
+    
+    var scopeMap = map.scope();
+    
+    strictEqual(scopeMap.get('a'), map.get('a'));
+});
+
+test("when value mapped, retrieving value from scope map should give same result", function () {
+    var map = this.map;
+    map.get('a');
+    
+    var scopeMap = map.scope();
+    
+    strictEqual(scopeMap.get('a'), map.get('a'));
+});
+
+test("when value not mapped, retrieving value from scope map should not create value in outer map", function () {
+    var map = this.map;
+    
+    var scopeMap = map.scope();
+    scopeMap.get('a');
+    
+    var called = false;
+    map.forEach(function () { called = true; });
+    
+    ok(!called);
+});
