@@ -8,8 +8,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            f.thenData(function (data) {
-                data.apply(null, args);
+            return f.thenData(function (data) {
+                return data.apply(null, args);
             });
         })();
     }
@@ -23,8 +23,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            f.thenData(function (data) {
-                data.apply(null, args);
+            return f.thenData(function (data) {
+                return data.apply(null, args);
             });
         })(a);
     }
@@ -38,8 +38,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            f.thenData(function (data) {
-                data.apply(null, args);
+            return f.thenData(function (data) {
+                return data.apply(null, args);
             });
         })(a, b, promise.unit(3));
     }
@@ -53,8 +53,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            promise.getMember(o, promise.unit('f')).val.thenData(function (data) {
-                data.apply(o, args);
+            return promise.getMember(o, promise.unit('f')).val.thenData(function (data) {
+                return data.apply(o, args);
             });
         })();
     }
@@ -68,8 +68,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            promise.getMember(o, promise.unit('f')).val.thenData(function (data) {
-                data.apply(o, args);
+            return promise.getMember(o, promise.unit('f')).val.thenData(function (data) {
+                return data.apply(o, args);
             });
         })(a, b, promise.unit(3));
     }
@@ -83,8 +83,8 @@ testCompile(
     function anonymous() {
         (function () {
             var args = arguments;
-            promise.getMember(promise.getMember(o, promise.unit('m')).val, promise.unit('f')).val.thenData(function (data) {
-                data.apply(promise.getMember(o, promise.unit('m')).val, args);
+            return promise.getMember(promise.getMember(o, promise.unit('m')).val, promise.unit('f')).val.thenData(function (data) {
+                return data.apply(promise.getMember(o, promise.unit('m')).val, args);
             });
         })();
     }

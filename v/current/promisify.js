@@ -450,8 +450,9 @@ var processors = {
     CallExpression: function (ast, code, varMap) {
         code.push('(function () {\n', 'var args = arguments', terminator);
 
+        code.push('return ');
         process(ast.callee, code, varMap);
-        code.push('.thenData(function (data) {\n', 'data.apply(');
+        code.push('.thenData(function (data) {\n', 'return data.apply(');
         
         // execution context
         if(ast.callee.type == 'MemberExpression') {
