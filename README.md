@@ -87,7 +87,7 @@ If you wish to use the library, merely include the two [JavaScript files](v/curr
 
 ```html
 <script src="promise-min.js"></script>
-<script src="promisify-min.js></script>
+<script src="promisify-min.js"></script>
 <script>
 	var delta = promisify.compile(function (a, b) {
 		if (a > b) {
